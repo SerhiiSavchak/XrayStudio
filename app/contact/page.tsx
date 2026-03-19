@@ -1,8 +1,9 @@
 import { Metadata } from "next";
 import { ContactHero } from "@/components/contact/contact-hero";
 import { ContactForm } from "@/components/contact/contact-form";
-import { WhatHappensNext } from "@/components/contact/what-happens-next";
+import { ContactInfo } from "@/components/contact/contact-info";
 import { ContactFAQ } from "@/components/contact/contact-faq";
+import { Section } from "@/components/ui/section";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -14,8 +15,12 @@ export default function ContactPage() {
   return (
     <>
       <ContactHero />
-      <ContactForm />
-      <WhatHappensNext />
+      <Section>
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20">
+          <ContactInfo />
+          <ContactForm />
+        </div>
+      </Section>
       <ContactFAQ />
     </>
   );
