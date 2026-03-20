@@ -16,17 +16,23 @@ interface LocaleContextType {
   t: Translations;
 }
 
-const LocaleContext = createContext<LocaleContextType | null>(null);
+// Create context with a default value to avoid null checks and SSR issues
+const defaultTranslations = getTranslations(defaultLocale);
+
+const LocaleContext = createContext<LocaleContextType>({
+  locale: defaultLocale,
+  setLocale: () => {},
+  t: defaultTranslations,
+});
 
 export function LocaleProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>(defaultLocale);
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
     const stored = localStorage.getItem("locale") as Locale | null;
     if (stored && locales.includes(stored)) {
       setLocaleState(stored);
+      document.documentElement.lang = stored;
     }
   }, []);
 
@@ -38,16 +44,6 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
 
   const t = getTranslations(locale);
 
-  if (!mounted) {
-    return (
-      <LocaleContext.Provider
-        value={{ locale: defaultLocale, setLocale, t: getTranslations(defaultLocale) }}
-      >
-        {children}
-      </LocaleContext.Provider>
-    );
-  }
-
   return (
     <LocaleContext.Provider value={{ locale, setLocale, t }}>
       {children}
@@ -56,9 +52,5 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
 }
 
 export function useLocale() {
-  const context = useContext(LocaleContext);
-  if (!context) {
-    throw new Error("useLocale must be used within a LocaleProvider");
-  }
-  return context;
+  return useContext(LocaleContext);
 }

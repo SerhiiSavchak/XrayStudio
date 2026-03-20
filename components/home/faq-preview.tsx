@@ -35,7 +35,7 @@ export function FAQPreview() {
         {/* FAQ Items */}
         <div className="max-w-3xl mx-auto">
           <div className="divide-y divide-[rgb(var(--border))]">
-            {t.faq.questions.map((faq, i) => (
+            {t.faq.items.map((faq, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 20 }}
