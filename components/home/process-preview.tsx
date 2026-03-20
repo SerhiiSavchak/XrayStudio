@@ -6,7 +6,7 @@ import { useLocale } from "@/lib/i18n/context";
 
 const steps = [
   { key: "discovery" as const, number: "01" },
-  { key: "structure" as const, number: "02" },
+  { key: "strategy" as const, number: "02" },
   { key: "design" as const, number: "03" },
   { key: "development" as const, number: "04" },
   { key: "launch" as const, number: "05" },
@@ -45,7 +45,7 @@ export function ProcessPreview() {
 
           <div className="space-y-0">
             {steps.map((step, i) => {
-              const stepData = t.process[step.key];
+              const stepData = t.process.steps[step.key];
               
               return (
                 <motion.div

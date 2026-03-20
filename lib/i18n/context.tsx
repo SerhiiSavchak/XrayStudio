@@ -5,6 +5,7 @@ import {
   useContext,
   useState,
   useEffect,
+  useMemo,
   type ReactNode,
 } from "react";
 import { type Locale, defaultLocale, locales } from "./config";
@@ -16,7 +17,7 @@ interface LocaleContextType {
   t: Translations;
 }
 
-// Create context with a default value to avoid null checks and SSR issues
+// Get default translations once at module level for SSR safety
 const defaultTranslations = getTranslations(defaultLocale);
 
 const LocaleContext = createContext<LocaleContextType>({
@@ -42,15 +43,29 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     document.documentElement.lang = newLocale;
   };
 
-  const t = getTranslations(locale);
+  const t = useMemo(() => getTranslations(locale), [locale]);
+
+  const value = useMemo(
+    () => ({ locale, setLocale, t }),
+    [locale, t]
+  );
 
   return (
-    <LocaleContext.Provider value={{ locale, setLocale, t }}>
+    <LocaleContext.Provider value={value}>
       {children}
     </LocaleContext.Provider>
   );
 }
 
-export function useLocale() {
-  return useContext(LocaleContext);
+export function useLocale(): LocaleContextType {
+  const context = useContext(LocaleContext);
+  // Always return valid translations even if context fails
+  if (!context || !context.t) {
+    return {
+      locale: defaultLocale,
+      setLocale: () => {},
+      t: defaultTranslations,
+    };
+  }
+  return context;
 }

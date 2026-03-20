@@ -5,11 +5,13 @@ import { motion, useInView } from "framer-motion";
 import { Eye, Layers, Zap, Shield } from "lucide-react";
 import { useLocale } from "@/lib/i18n/context";
 
-const values = [
-  { key: "visual" as const, icon: Eye },
-  { key: "structure" as const, icon: Layers },
-  { key: "performance" as const, icon: Zap },
-  { key: "trust" as const, icon: Shield },
+type ValueKey = "visual" | "structure" | "performance" | "trust";
+
+const values: { key: ValueKey; icon: typeof Eye }[] = [
+  { key: "visual", icon: Eye },
+  { key: "structure", icon: Layers },
+  { key: "performance", icon: Zap },
+  { key: "trust", icon: Shield },
 ];
 
 export function ValueProposition() {
@@ -48,7 +50,7 @@ export function ValueProposition() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
           {values.map((value, i) => {
             const Icon = value.icon;
-            const valueData = t.value[value.key];
+            const valueData = t.value[value.key] as { title: string; description: string };
             const isLarge = i === 0 || i === 3;
 
             return (
