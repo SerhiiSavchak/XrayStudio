@@ -2,118 +2,103 @@
 
 import { useRef } from "react";
 import Link from "next/link";
-import { motion, useInView, useScroll, useTransform } from "framer-motion";
+import { motion, useInView } from "framer-motion";
 import { ArrowRight } from "lucide-react";
-import { useLocale } from "@/lib/i18n/context";
 
 export function FinalCTA() {
-  const { t } = useLocale();
   const ref = useRef<HTMLElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
-  
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start end", "end start"],
-  });
-
-  const y = useTransform(scrollYProgress, [0, 1], [50, -50]);
 
   return (
-    <section ref={ref} className="relative py-32 lg:py-48 overflow-hidden">
-      {/* Background layers */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[rgb(var(--background))] via-[rgb(var(--surface-1))] to-[rgb(var(--background))]" />
-      
-      {/* Animated glow orbs */}
-      <motion.div
-        style={{ y }}
-        className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-gradient-radial from-[rgb(var(--glow))]/20 to-transparent blur-3xl"
-      />
-      <motion.div
-        style={{ y: useTransform(scrollYProgress, [0, 1], [-30, 30]) }}
-        className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-gradient-radial from-[rgb(var(--glow-intense))]/15 to-transparent blur-3xl"
-      />
-      
-      {/* Grid pattern */}
-      <div
-        className="absolute inset-0 opacity-[0.02]"
-        style={{
-          backgroundImage: `linear-gradient(rgb(var(--foreground)) 1px, transparent 1px),
-                           linear-gradient(90deg, rgb(var(--foreground)) 1px, transparent 1px)`,
-          backgroundSize: "80px 80px",
-        }}
-      />
+    <section ref={ref} className="relative py-32 lg:py-48 overflow-hidden bg-foreground">
+      {/* Animated background */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:60px_60px]" />
+        <motion.div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-accent/10 blur-[150px]"
+          animate={{
+            scale: [1, 1.2, 1],
+            opacity: [0.2, 0.4, 0.2],
+          }}
+          transition={{
+            duration: 8,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+      </div>
 
-      <div className="relative container-wide">
+      <div className="relative z-10 container mx-auto px-6 md:px-8">
         <div className="max-w-4xl mx-auto text-center">
-          {/* Label */}
-          <motion.div
+          <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
             transition={{ duration: 0.6 }}
+            className="text-background/50 text-sm tracking-[0.2em] uppercase mb-6"
           >
-            <span className="text-sm font-medium uppercase tracking-[0.2em] text-[rgb(var(--muted-foreground))]">
-              {t.cta.ready}
-            </span>
-          </motion.div>
-          
-          {/* Headline */}
+            Ready to start?
+          </motion.p>
+
           <motion.h2
             initial={{ opacity: 0, y: 30 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.7, delay: 0.1 }}
-            className="mt-6 font-display text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-[rgb(var(--foreground))] text-balance"
+            transition={{ duration: 0.8, delay: 0.1 }}
+            className="text-4xl md:text-6xl lg:text-7xl font-bold text-background mb-8 leading-[1.1] tracking-tight"
           >
-            {t.cta.title}
+            Let's create something{" "}
+            <span className="text-accent">remarkable</span>
           </motion.h2>
-          
-          {/* Subtitle */}
+
           <motion.p
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.7, delay: 0.2 }}
-            className="mt-8 text-xl lg:text-2xl text-[rgb(var(--muted-foreground))] leading-relaxed max-w-2xl mx-auto"
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="text-background/60 text-lg md:text-xl mb-12 max-w-2xl mx-auto leading-relaxed"
           >
-            {t.cta.subtitle}
+            Have a project in mind? I'd love to hear about it. 
+            Let's discuss how we can bring your vision to life.
           </motion.p>
-          
-          {/* CTAs */}
+
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.7, delay: 0.3 }}
-            className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4"
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="flex flex-col sm:flex-row items-center justify-center gap-4"
           >
             <Link
               href="/contact"
-              className="group relative flex items-center gap-3 px-8 py-4 text-base font-medium bg-[rgb(var(--primary))] text-[rgb(var(--primary-foreground))] rounded-full overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-[rgb(var(--glow))]/20 hover:scale-[1.02]"
+              className="group relative inline-flex items-center gap-3 px-8 py-4 bg-accent text-accent-foreground font-medium rounded-full overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_40px_rgba(16,185,129,0.3)]"
             >
-              <span className="relative z-10">{t.cta.primary}</span>
-              <ArrowRight className="relative z-10 w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[rgb(var(--primary-foreground))]/10 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700" />
+              <span className="relative z-10">Start a conversation</span>
+              <ArrowRight className="relative z-10 w-5 h-5 transition-transform group-hover:translate-x-1" />
             </Link>
-            
-            <a
-              href="mailto:hello@xray.studio"
-              className="flex items-center gap-2 px-8 py-4 text-base font-medium text-[rgb(var(--foreground))] rounded-full border border-[rgb(var(--border))] hover:bg-[rgb(var(--surface-2))] hover:border-[rgb(var(--muted-foreground))]/30 transition-all duration-300"
+
+            <Link
+              href="/work"
+              className="inline-flex items-center gap-2 px-8 py-4 text-background/70 font-medium hover:text-background transition-colors"
             >
-              hello@xray.studio
-            </a>
+              View my work
+              <ArrowRight className="w-4 h-4" />
+            </Link>
           </motion.div>
-          
-          {/* Response time */}
-          <motion.p
+
+          <motion.div
             initial={{ opacity: 0 }}
             animate={isInView ? { opacity: 1 } : {}}
-            transition={{ duration: 0.6, delay: 0.5 }}
-            className="mt-8 text-sm text-[rgb(var(--muted-foreground))]"
+            transition={{ duration: 0.8, delay: 0.5 }}
+            className="mt-16 pt-16 border-t border-background/10"
           >
-            {t.cta.response}
-          </motion.p>
+            <div className="flex flex-wrap items-center justify-center gap-8 md:gap-16 text-background/40 text-sm">
+              <div className="flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span>Available for projects</span>
+              </div>
+              <div>Response within 24h</div>
+              <div>Free consultation</div>
+            </div>
+          </motion.div>
         </div>
       </div>
-
-      {/* Noise */}
-      <div className="absolute inset-0 pointer-events-none noise" />
     </section>
   );
 }
