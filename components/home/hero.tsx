@@ -272,12 +272,11 @@ export function Hero() {
       {/* LAYER 5 - Main project preview plane */}
       <div className="absolute inset-0 overflow-hidden">
         <motion.div
-          style={{ y: y1 }}
+          style={{ y: y1, perspective: "1200px" }}
           initial={{ opacity: 0, x: 120, rotateY: -20 }}
           animate={{ opacity: 1, x: 0, rotateY: -12 }}
           transition={{ duration: 1.4, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="absolute top-[12%] right-[-2%] lg:right-[4%] w-[520px] lg:w-[620px] h-[360px] lg:h-[440px] hidden md:block"
-          style={{ perspective: "1200px" }}
         >
           <motion.div 
             className="relative w-full h-full rounded-2xl lg:rounded-3xl overflow-hidden border border-[rgb(var(--border))] shadow-2xl shadow-black/30"
