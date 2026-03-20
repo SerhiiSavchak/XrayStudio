@@ -11,6 +11,7 @@ const steps = [
     description: "Deep dive into your business, goals, and target audience to define a clear strategic direction.",
     icon: Target,
     visual: "Strategy & Research",
+    accent: "from-blue-500/20 to-cyan-500/20",
   },
   {
     number: "02",
@@ -18,6 +19,7 @@ const steps = [
     description: "Crafting premium visual experiences that captivate visitors and communicate your brand story.",
     icon: Sparkles,
     visual: "Visual Direction",
+    accent: "from-violet-500/20 to-purple-500/20",
   },
   {
     number: "03",
@@ -25,6 +27,7 @@ const steps = [
     description: "Building with modern technologies for speed, security, and seamless user experiences.",
     icon: Zap,
     visual: "Clean Code",
+    accent: "from-amber-500/20 to-orange-500/20",
   },
   {
     number: "04",
@@ -32,6 +35,7 @@ const steps = [
     description: "Deploying with care and providing ongoing support to ensure long-term success.",
     icon: Rocket,
     visual: "Go Live",
+    accent: "from-emerald-500/20 to-teal-500/20",
   },
 ];
 
@@ -43,130 +47,160 @@ export function ScrollStory() {
   });
 
   const x = useTransform(scrollYProgress, [0, 1], ["0%", "-75%"]);
-  const bgX = useTransform(scrollYProgress, [0, 1], ["0%", "-20%"]);
+  const bgX = useTransform(scrollYProgress, [0, 1], ["0%", "-15%"]);
+  const progressWidth = useTransform(scrollYProgress, [0, 1], ["0%", "100%"]);
 
   return (
     <section ref={containerRef} className="relative h-[400vh] bg-[rgb(var(--surface-1))]">
       {/* Sticky container */}
       <div className="sticky top-0 h-screen overflow-hidden">
-        {/* Background parallax layer */}
-        <motion.div 
-          style={{ x: bgX }}
-          className="absolute inset-0 w-[120%]"
-        >
-          <div className="absolute top-[20%] left-[10%] w-[600px] h-[600px] bg-gradient-radial from-[rgb(var(--glow))]/10 to-transparent rounded-full blur-3xl" />
-          <div className="absolute bottom-[20%] left-[40%] w-[500px] h-[500px] bg-gradient-radial from-[rgb(var(--glow-intense))]/10 to-transparent rounded-full blur-3xl" />
-          <div className="absolute top-[30%] right-[20%] w-[400px] h-[400px] bg-gradient-radial from-[rgb(var(--surface-3))] to-transparent rounded-full blur-2xl" />
+        {/* Layered background */}
+        <motion.div style={{ x: bgX }} className="absolute inset-0 w-[130%]">
+          {/* Gradient orbs */}
+          <motion.div 
+            className="absolute top-[15%] left-[8%] w-[500px] h-[500px] rounded-full blur-[120px]"
+            style={{ background: "radial-gradient(ellipse at center, rgb(var(--glow))/0.08, transparent)" }}
+            animate={{ scale: [1, 1.1, 1], opacity: [0.5, 0.8, 0.5] }}
+            transition={{ duration: 8, repeat: Infinity }}
+          />
+          <motion.div 
+            className="absolute bottom-[15%] left-[35%] w-[600px] h-[600px] rounded-full blur-[140px]"
+            style={{ background: "radial-gradient(ellipse at center, rgb(var(--glow-intense))/0.06, transparent)" }}
+            animate={{ scale: [1, 1.15, 1], opacity: [0.4, 0.7, 0.4] }}
+            transition={{ duration: 10, repeat: Infinity, delay: 2 }}
+          />
+          <motion.div 
+            className="absolute top-[40%] right-[10%] w-[400px] h-[400px] rounded-full blur-[100px]"
+            style={{ background: "radial-gradient(ellipse at center, rgb(var(--surface-3)), transparent)" }}
+          />
         </motion.div>
 
-        {/* Section header - Fixed */}
-        <div className="absolute top-12 left-6 lg:left-12 z-10">
+        {/* Subtle grid */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(var(--foreground),0.012)_1px,transparent_1px),linear-gradient(90deg,rgba(var(--foreground),0.012)_1px,transparent_1px)] bg-[size:100px_100px]" />
+
+        {/* Section header - Fixed position */}
+        <div className="absolute top-10 left-6 lg:left-16 z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             viewport={{ once: true }}
           >
-            <span className="text-sm font-medium uppercase tracking-[0.2em] text-[rgb(var(--muted-foreground))]">
+            <span className="text-xs font-semibold uppercase tracking-[0.25em] text-[rgb(var(--muted-foreground))]">
               The Process
             </span>
-            <h2 className="mt-3 font-display text-3xl lg:text-4xl font-bold text-[rgb(var(--foreground))]">
+            <h2 className="mt-4 font-display text-3xl lg:text-4xl xl:text-5xl font-bold text-[rgb(var(--foreground))] tracking-tight">
               How we work together
             </h2>
           </motion.div>
         </div>
 
-        {/* Progress indicator */}
-        <div className="absolute top-12 right-6 lg:right-12 z-10">
+        {/* Progress bar */}
+        <div className="absolute top-10 right-6 lg:right-16 z-10 flex flex-col items-end gap-4">
           <div className="flex items-center gap-3">
-            {steps.map((_, i) => (
+            {steps.map((step, i) => (
               <motion.div
                 key={i}
-                className="w-8 h-1 rounded-full bg-[rgb(var(--border))] overflow-hidden"
+                className="relative w-10 h-1.5 rounded-full bg-[rgb(var(--surface-3))] overflow-hidden"
               >
                 <motion.div
-                  className="h-full bg-[rgb(var(--foreground))]"
+                  className="absolute inset-y-0 left-0 bg-[rgb(var(--foreground))]"
                   style={{
-                    scaleX: useTransform(
+                    width: useTransform(
                       scrollYProgress,
                       [i * 0.25, (i + 1) * 0.25],
-                      [0, 1]
+                      ["0%", "100%"]
                     ),
-                    transformOrigin: "left",
                   }}
                 />
               </motion.div>
             ))}
           </div>
+          <span className="text-xs text-[rgb(var(--muted-foreground))]">
+            <motion.span className="font-semibold text-[rgb(var(--foreground))]">
+              {/* Dynamic step number would go here */}
+            </motion.span>
+          </span>
         </div>
 
         {/* Horizontal scroll content */}
         <div className="h-full flex items-center">
           <motion.div
             style={{ x }}
-            className="flex gap-8 lg:gap-16 pl-6 lg:pl-12 pr-[50vw]"
+            className="flex gap-10 lg:gap-20 pl-6 lg:pl-16 pr-[60vw]"
           >
             {steps.map((step, i) => {
               const Icon = step.icon;
               return (
-                <div
+                <motion.div
                   key={step.number}
-                  className="flex-shrink-0 w-[85vw] lg:w-[45vw] h-[70vh] flex items-center"
+                  className="flex-shrink-0 w-[88vw] lg:w-[50vw] xl:w-[45vw] h-[75vh] max-h-[700px] flex items-center"
                 >
-                  <div className="relative w-full h-full max-h-[600px] rounded-3xl overflow-hidden border border-[rgb(var(--border))] bg-[rgb(var(--surface-2))]">
-                    {/* Card gradient background */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-[rgb(var(--surface-3))] via-transparent to-transparent opacity-50" />
+                  <div className="relative w-full h-full rounded-[2rem] lg:rounded-[2.5rem] overflow-hidden border border-[rgb(var(--border))] bg-[rgb(var(--surface-2))] group">
+                    {/* Card inner glow */}
+                    <div className={`absolute inset-0 bg-gradient-to-br ${step.accent} opacity-0 group-hover:opacity-100 transition-opacity duration-700`} />
                     
-                    {/* Large number background */}
-                    <div className="absolute top-6 right-6 lg:top-10 lg:right-10 font-display text-[8rem] lg:text-[12rem] font-bold text-[rgb(var(--foreground))]/[0.03] leading-none select-none">
+                    {/* Card gradient background */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-[rgb(var(--surface-3))]/50 via-transparent to-transparent" />
+                    
+                    {/* Massive watermark number */}
+                    <div className="absolute -top-8 -right-6 lg:top-0 lg:right-0 font-display text-[10rem] lg:text-[16rem] font-bold text-[rgb(var(--foreground))]/[0.02] leading-none select-none pointer-events-none">
                       {step.number}
                     </div>
 
                     {/* Content */}
-                    <div className="relative z-10 h-full flex flex-col justify-between p-8 lg:p-12">
+                    <div className="relative z-10 h-full flex flex-col justify-between p-8 lg:p-14">
                       <div>
-                        {/* Step indicator */}
-                        <div className="flex items-center gap-4 mb-8">
-                          <div className="w-14 h-14 rounded-2xl bg-[rgb(var(--surface-3))] border border-[rgb(var(--border))] flex items-center justify-center">
-                            <Icon className="w-6 h-6 text-[rgb(var(--foreground))]" />
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium text-[rgb(var(--muted-foreground))]">Step</span>
-                            <span className="text-sm font-bold text-[rgb(var(--foreground))]">{step.number}</span>
+                        {/* Icon + step indicator */}
+                        <div className="flex items-start justify-between mb-10 lg:mb-14">
+                          <motion.div 
+                            className="w-16 h-16 lg:w-20 lg:h-20 rounded-2xl lg:rounded-3xl bg-[rgb(var(--surface-3))] border border-[rgb(var(--border))] flex items-center justify-center"
+                            whileHover={{ scale: 1.05 }}
+                            transition={{ type: "spring", stiffness: 400 }}
+                          >
+                            <Icon className="w-7 h-7 lg:w-9 lg:h-9 text-[rgb(var(--foreground))]" />
+                          </motion.div>
+                          <div className="text-right">
+                            <span className="text-xs font-medium uppercase tracking-wider text-[rgb(var(--muted-foreground))]">Step</span>
+                            <span className="block text-2xl lg:text-3xl font-display font-bold text-[rgb(var(--foreground))]">{step.number}</span>
                           </div>
                         </div>
 
-                        {/* Title */}
-                        <h3 className="font-display text-4xl lg:text-5xl xl:text-6xl font-bold text-[rgb(var(--foreground))] mb-6">
+                        {/* Title - Premium display typography */}
+                        <h3 className="font-display text-5xl lg:text-6xl xl:text-7xl font-bold text-[rgb(var(--foreground))] tracking-tight mb-8">
                           {step.title}
                         </h3>
 
                         {/* Description */}
-                        <p className="text-lg lg:text-xl text-[rgb(var(--muted-foreground))] leading-relaxed max-w-lg">
+                        <p className="text-lg lg:text-xl xl:text-2xl text-[rgb(var(--muted-foreground))] leading-relaxed max-w-lg font-light">
                           {step.description}
                         </p>
                       </div>
 
-                      {/* Visual label */}
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-px bg-[rgb(var(--border))]" />
-                        <span className="text-sm font-medium uppercase tracking-wider text-[rgb(var(--muted-foreground))]">
+                      {/* Visual label with line */}
+                      <div className="flex items-center gap-4">
+                        <div className="w-16 lg:w-24 h-px bg-gradient-to-r from-[rgb(var(--border))] to-transparent" />
+                        <span className="text-xs lg:text-sm font-semibold uppercase tracking-[0.2em] text-[rgb(var(--muted-foreground))]">
                           {step.visual}
                         </span>
                       </div>
                     </div>
 
-                    {/* Decorative corner accent */}
-                    <div className="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-tl from-[rgb(var(--glow))]/20 to-transparent" />
+                    {/* Corner accent glow */}
+                    <div className="absolute bottom-0 right-0 w-48 h-48 lg:w-64 lg:h-64 bg-gradient-to-tl from-[rgb(var(--glow))]/10 to-transparent pointer-events-none" />
+                    
+                    {/* Top edge highlight */}
+                    <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
                   </div>
-                </div>
+                </motion.div>
               );
             })}
           </motion.div>
         </div>
 
         {/* Bottom gradient fade */}
-        <div className="absolute bottom-0 inset-x-0 h-32 bg-gradient-to-t from-[rgb(var(--surface-1))] to-transparent pointer-events-none" />
+        <div className="absolute bottom-0 inset-x-0 h-40 bg-gradient-to-t from-[rgb(var(--surface-1))] to-transparent pointer-events-none" />
+        <div className="absolute top-0 inset-x-0 h-32 bg-gradient-to-b from-[rgb(var(--surface-1))] to-transparent pointer-events-none" />
       </div>
     </section>
   );
