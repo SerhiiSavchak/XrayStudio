@@ -1,116 +1,161 @@
 "use client";
 
+import { useRef } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { motion } from "framer-motion";
-import { Section, SectionHeader } from "@/components/ui/section";
+import { motion, useInView, useScroll, useTransform } from "framer-motion";
 import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { useLocale } from "@/lib/i18n/context";
 
 const projects = [
   {
-    id: 1,
+    id: "meridian-consulting",
     title: "Meridian Consulting",
     category: "Business Website",
-    description: "Premium multi-page website for a management consulting firm. Focus on trust, credibility, and lead generation.",
-    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&h=800&fit=crop",
-    tags: ["Strategy", "Multi-page", "Lead Gen"],
+    description: "Premium multi-page website for a management consulting firm with focus on trust and lead generation.",
+    gradient: "from-amber-500/20 via-orange-500/10",
   },
   {
-    id: 2,
+    id: "sarah-mitchell",
     title: "Sarah Mitchell",
     category: "Personal Brand",
-    description: "High-converting landing page for a marketing consultant. Bold visuals with clear value proposition.",
-    image: "https://images.unsplash.com/photo-1551434678-e076c223a692?w=1200&h=800&fit=crop",
-    tags: ["Personal Brand", "Landing Page"],
+    description: "High-converting landing page for a marketing consultant with bold visuals.",
+    gradient: "from-blue-500/20 via-cyan-500/10",
   },
   {
-    id: 3,
+    id: "nexus-digital",
     title: "Nexus Digital Studio",
     category: "Agency Website",
-    description: "Modern portfolio website for a creative agency. Showcasing work with immersive visual storytelling.",
-    image: "https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=1200&h=800&fit=crop",
-    tags: ["Portfolio", "Animation", "Creative"],
+    description: "Modern portfolio with immersive visual storytelling for a creative agency.",
+    gradient: "from-rose-500/20 via-pink-500/10",
   },
 ];
 
 export function SelectedWork() {
-  return (
-    <Section>
-      <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8 mb-16 lg:mb-20">
-        <SectionHeader
-          label="Selected Work"
-          title="Projects that made an impact"
-          description="A curated selection of recent work. Each project built with attention to detail, performance, and business goals."
-        />
-        
-        <Link
-          href="/work"
-          className="group inline-flex items-center gap-2 text-sm font-medium text-foreground hover:text-muted-foreground transition-colors shrink-0"
-        >
-          View All Projects
-          <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-        </Link>
-      </div>
+  const { t } = useLocale();
+  const ref = useRef<HTMLElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
+  
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"],
+  });
 
-      <div className="space-y-8">
-        {projects.map((project, index) => (
-          <motion.article
-            key={project.id}
+  const y = useTransform(scrollYProgress, [0, 1], [100, -100]);
+
+  return (
+    <section ref={ref} className="relative section-padding overflow-hidden">
+      {/* Background */}
+      <div className="absolute inset-0 surface-1" />
+      
+      {/* Floating background element */}
+      <motion.div
+        style={{ y }}
+        className="absolute top-0 right-0 w-[800px] h-[800px] bg-gradient-radial from-[rgb(var(--surface-3))] to-transparent opacity-30 translate-x-1/2 -translate-y-1/4"
+      />
+
+      <div className="relative container-wide">
+        {/* Section header */}
+        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8 mb-16 lg:mb-24">
+          <motion.div
             initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: index * 0.15 }}
-            className="group"
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6 }}
+            className="max-w-2xl"
           >
-            <Link href="/work" className="block">
-              <div className="relative rounded-2xl lg:rounded-3xl overflow-hidden bg-surface-2 border border-border">
-                <div className="grid lg:grid-cols-2 gap-0">
-                  {/* Image */}
-                  <div className="relative aspect-[4/3] lg:aspect-auto overflow-hidden">
-                    <Image
-                      src={project.image}
-                      alt={project.title}
-                      fill
-                      className="object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
+            <span className="text-sm font-medium uppercase tracking-[0.2em] text-[rgb(var(--muted-foreground))]">
+              {t.work.title}
+            </span>
+            <h2 className="mt-4 font-display text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-[rgb(var(--foreground))]">
+              {t.work.subtitle}
+            </h2>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            <Link
+              href="/work"
+              className="inline-flex items-center gap-2 text-base font-medium text-[rgb(var(--foreground))] hover:text-[rgb(var(--muted-foreground))] transition-colors group"
+            >
+              {t.work.viewAll}
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+            </Link>
+          </motion.div>
+        </div>
+
+        {/* Projects - Cinematic staggered grid */}
+        <div className="space-y-8 lg:space-y-0 lg:grid lg:grid-cols-12 lg:gap-8">
+          {projects.map((project, i) => (
+            <motion.div
+              key={project.id}
+              initial={{ opacity: 0, y: 60 }}
+              animate={isInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.8, delay: i * 0.2 }}
+              className={`group relative ${
+                i === 0 
+                  ? "lg:col-span-7 lg:row-span-2" 
+                  : i === 1 
+                    ? "lg:col-span-5 lg:col-start-8" 
+                    : "lg:col-span-5 lg:col-start-8"
+              }`}
+            >
+              <Link href={`/work/${project.id}`} className="block">
+                <div className="relative overflow-hidden rounded-2xl lg:rounded-3xl surface-2 border border-[rgb(var(--border))] transition-all duration-700 hover:border-[rgb(var(--muted-foreground))]/30 hover:shadow-2xl hover:shadow-[rgb(var(--glow))]/10">
+                  {/* Image container */}
+                  <div className={`relative ${i === 0 ? "aspect-[4/3] lg:aspect-[16/12]" : "aspect-[16/10]"} overflow-hidden`}>
+                    {/* Gradient background */}
+                    <div className={`absolute inset-0 bg-gradient-to-br ${project.gradient} to-[rgb(var(--surface-3))]`} />
+                    
+                    {/* Mock interface elements */}
+                    <div className="absolute inset-6 lg:inset-10 rounded-xl surface-3 border border-[rgb(var(--border-subtle))] overflow-hidden transition-transform duration-700 group-hover:scale-[1.02]">
+                      <div className="flex items-center gap-1.5 px-4 py-3 border-b border-[rgb(var(--border-subtle))]">
+                        <div className="w-2.5 h-2.5 rounded-full bg-[rgb(var(--foreground))]/20" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-[rgb(var(--foreground))]/20" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-[rgb(var(--foreground))]/20" />
+                      </div>
+                      <div className="p-4 space-y-3">
+                        <div className="w-24 h-2 rounded bg-[rgb(var(--foreground))]/10" />
+                        <div className="w-full h-4 rounded bg-[rgb(var(--foreground))]/5" />
+                        <div className="w-3/4 h-4 rounded bg-[rgb(var(--foreground))]/5" />
+                        <div className="w-1/2 h-3 rounded bg-[rgb(var(--foreground))]/8 mt-4" />
+                      </div>
+                    </div>
+                    
                     {/* Overlay gradient */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-surface-2 via-transparent to-transparent lg:bg-gradient-to-r lg:from-transparent lg:via-transparent lg:to-surface-2" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[rgb(var(--surface-2))] via-transparent to-transparent opacity-80" />
                   </div>
-                  
-                  {/* Content */}
-                  <div className="relative p-8 lg:p-12 flex flex-col justify-center">
-                    <div className="flex items-center gap-3 mb-4">
-                      <span className="text-xs font-medium text-muted-foreground tracking-wide uppercase">
+
+                  {/* Content overlay */}
+                  <div className="absolute inset-0 p-6 lg:p-8 flex flex-col justify-end">
+                    {/* Category tag */}
+                    <div className="mb-4">
+                      <span className="inline-block px-3 py-1.5 text-xs font-medium uppercase tracking-wider text-[rgb(var(--foreground))] bg-[rgb(var(--background))]/70 backdrop-blur-sm rounded-full border border-[rgb(var(--border-subtle))]">
                         {project.category}
                       </span>
                     </div>
-                    
-                    <h3 className="text-2xl lg:text-3xl font-semibold text-foreground mb-4 flex items-center gap-3">
+
+                    {/* Title and description */}
+                    <h3 className="font-display text-2xl lg:text-3xl font-semibold text-[rgb(var(--foreground))] mb-2">
                       {project.title}
-                      <ArrowUpRight className="w-6 h-6 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
                     </h3>
-                    
-                    <p className="text-muted-foreground leading-relaxed mb-6 max-w-md">
+                    <p className="text-[rgb(var(--muted-foreground))] text-sm lg:text-base max-w-md leading-relaxed">
                       {project.description}
                     </p>
-                    
-                    <div className="flex flex-wrap gap-2">
-                      {project.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="px-3 py-1 text-xs font-medium rounded-full bg-surface-3 border border-border text-muted-foreground"
-                        >
-                          {tag}
-                        </span>
-                      ))}
+
+                    {/* View link */}
+                    <div className="mt-6 flex items-center gap-2 text-[rgb(var(--foreground))]">
+                      <span className="text-sm font-medium">{t.work.viewCase}</span>
+                      <ArrowUpRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1" />
                     </div>
                   </div>
                 </div>
-              </div>
-            </Link>
-          </motion.article>
-        ))}
+              </Link>
+            </motion.div>
+          ))}
+        </div>
       </div>
-    </Section>
+    </section>
   );
 }

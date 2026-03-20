@@ -1,88 +1,78 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { Section } from "@/components/ui/section";
+import { useRef } from "react";
+import { motion, useInView } from "framer-motion";
 import { Layout, Globe, User, RefreshCw, Settings, Sparkles } from "lucide-react";
+import { useLocale } from "@/lib/i18n/context";
 
 const categories = [
-  {
-    icon: Layout,
-    title: "Landing Pages",
-    description: "High-converting single pages for offers, launches, and campaigns",
-    href: "#landing-pages",
-  },
-  {
-    icon: Globe,
-    title: "Business Websites",
-    description: "Multi-page marketing websites that establish credibility",
-    href: "#business-websites",
-  },
-  {
-    icon: User,
-    title: "Portfolio Sites",
-    description: "Personal brand websites that showcase expertise",
-    href: "#portfolio-sites",
-  },
-  {
-    icon: RefreshCw,
-    title: "Website Redesign",
-    description: "Transform outdated sites into modern digital assets",
-    href: "#redesign",
-  },
-  {
-    icon: Settings,
-    title: "CMS Setup",
-    description: "Content management systems for easy updates",
-    href: "#cms",
-  },
-  {
-    icon: Sparkles,
-    title: "Polish & Refinement",
-    description: "Performance optimization and visual improvements",
-    href: "#polish",
-  },
+  { key: "landing" as const, icon: Layout, href: "#landing-pages" },
+  { key: "business" as const, icon: Globe, href: "#business-websites" },
+  { key: "portfolio" as const, icon: User, href: "#portfolio-sites" },
+  { key: "redesign" as const, icon: RefreshCw, href: "#redesign" },
+  { key: "cms" as const, icon: Settings, href: "#cms" },
+  { key: "polish" as const, icon: Sparkles, href: "#polish" },
 ];
 
 export function ServiceCategories() {
-  return (
-    <Section className="bg-surface-1/30">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        className="mb-12"
-      >
-        <p className="text-sm font-medium text-muted-foreground tracking-wide uppercase mb-4">
-          Service Categories
-        </p>
-        <h2 className="text-3xl md:text-4xl font-semibold tracking-tight">
-          What I can build for you
-        </h2>
-      </motion.div>
+  const { t } = useLocale();
+  const ref = useRef<HTMLElement>(null);
+  const isInView = useInView(ref, { once: true, margin: "-100px" });
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {categories.map((category, index) => (
-          <motion.a
-            key={category.title}
-            href={category.href}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: index * 0.05 }}
-            className="group p-6 rounded-2xl bg-surface-2/50 border border-border hover:border-highlight/50 transition-all duration-300"
-          >
-            <div className="w-10 h-10 rounded-xl bg-surface-3 border border-border flex items-center justify-center mb-4 group-hover:border-highlight/30 transition-colors">
-              <category.icon className="w-5 h-5 text-foreground" />
-            </div>
-            <h3 className="text-lg font-semibold text-foreground mb-1">
-              {category.title}
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              {category.description}
-            </p>
-          </motion.a>
-        ))}
+  return (
+    <section ref={ref} className="relative section-padding overflow-hidden">
+      {/* Background */}
+      <div className="absolute inset-0 surface-1" />
+
+      <div className="relative container-wide">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6 }}
+          className="mb-16"
+        >
+          <span className="text-sm font-medium uppercase tracking-[0.2em] text-[rgb(var(--muted-foreground))]">
+            {t.servicesPage.categoriesLabel}
+          </span>
+          <h2 className="mt-4 font-display text-4xl md:text-5xl font-bold tracking-tight text-[rgb(var(--foreground))]">
+            {t.servicesPage.categoriesTitle}
+          </h2>
+        </motion.div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {categories.map((category, i) => {
+            const Icon = category.icon;
+            const categoryData = t.servicesPage.categories[category.key];
+            
+            return (
+              <motion.a
+                key={category.key}
+                href={category.href}
+                initial={{ opacity: 0, y: 30 }}
+                animate={isInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.5, delay: i * 0.08 }}
+                className="group relative p-8 rounded-3xl surface-2 border border-[rgb(var(--border))] hover:border-[rgb(var(--muted-foreground))]/30 transition-all duration-500 hover:shadow-xl hover:shadow-[rgb(var(--glow))]/5"
+              >
+                {/* Hover gradient */}
+                <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-[rgb(var(--glow))]/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                
+                <div className="relative">
+                  <div className="w-12 h-12 rounded-2xl surface-3 border border-[rgb(var(--border))] flex items-center justify-center mb-6 group-hover:scale-110 group-hover:border-[rgb(var(--muted-foreground))]/30 transition-all duration-500">
+                    <Icon className="w-5 h-5 text-[rgb(var(--foreground))]" />
+                  </div>
+                  
+                  <h3 className="font-display text-xl font-semibold text-[rgb(var(--foreground))] mb-2">
+                    {categoryData.title}
+                  </h3>
+                  <p className="text-sm text-[rgb(var(--muted-foreground))] leading-relaxed">
+                    {categoryData.description}
+                  </p>
+                </div>
+              </motion.a>
+            );
+          })}
+        </div>
       </div>
-    </Section>
+    </section>
   );
 }
