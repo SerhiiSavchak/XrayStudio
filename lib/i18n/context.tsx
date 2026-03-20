@@ -5,25 +5,21 @@ import {
   useContext,
   useState,
   useEffect,
-  useMemo,
   type ReactNode,
 } from "react";
 import { type Locale, defaultLocale, locales } from "./config";
-import { getTranslations, type Translations } from "./translations";
+import { translations } from "./translations";
 
+// Define the context type
 interface LocaleContextType {
   locale: Locale;
   setLocale: (locale: Locale) => void;
-  t: Translations;
 }
 
-// Get default translations once at module level for SSR safety
-const defaultTranslations = getTranslations(defaultLocale);
-
+// Create context with just locale state (not translations)
 const LocaleContext = createContext<LocaleContextType>({
   locale: defaultLocale,
   setLocale: () => {},
-  t: defaultTranslations,
 });
 
 export function LocaleProvider({ children }: { children: ReactNode }) {
@@ -43,29 +39,25 @@ export function LocaleProvider({ children }: { children: ReactNode }) {
     document.documentElement.lang = newLocale;
   };
 
-  const t = useMemo(() => getTranslations(locale), [locale]);
-
-  const value = useMemo(
-    () => ({ locale, setLocale, t }),
-    [locale, t]
-  );
-
   return (
-    <LocaleContext.Provider value={value}>
+    <LocaleContext.Provider value={{ locale, setLocale }}>
       {children}
     </LocaleContext.Provider>
   );
 }
 
-export function useLocale(): LocaleContextType {
+// Hook that returns locale context AND translations directly from the import
+export function useLocale() {
   const context = useContext(LocaleContext);
-  // Always return valid translations even if context fails
-  if (!context || !context.t) {
-    return {
-      locale: defaultLocale,
-      setLocale: () => {},
-      t: defaultTranslations,
-    };
-  }
-  return context;
+  const locale = context?.locale || defaultLocale;
+  
+  // Always return translations directly from the imported object
+  // This ensures translations are ALWAYS available, even during SSR
+  const t = translations[locale] || translations[defaultLocale];
+  
+  return {
+    locale,
+    setLocale: context?.setLocale || (() => {}),
+    t,
+  };
 }

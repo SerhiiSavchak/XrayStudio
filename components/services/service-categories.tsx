@@ -6,12 +6,9 @@ import { Layout, Globe, User, RefreshCw, Settings, Sparkles } from "lucide-react
 import { useLocale } from "@/lib/i18n/context";
 
 const categories = [
-  { key: "landing" as const, icon: Layout, href: "#landing-pages" },
-  { key: "business" as const, icon: Globe, href: "#business-websites" },
-  { key: "portfolio" as const, icon: User, href: "#portfolio-sites" },
-  { key: "redesign" as const, icon: RefreshCw, href: "#redesign" },
-  { key: "cms" as const, icon: Settings, href: "#cms" },
-  { key: "polish" as const, icon: Sparkles, href: "#polish" },
+  { key: "design" as const, icon: Layout, href: "#design" },
+  { key: "development" as const, icon: Globe, href: "#development" },
+  { key: "support" as const, icon: Settings, href: "#support" },
 ];
 
 export function ServiceCategories() {
