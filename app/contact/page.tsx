@@ -3,7 +3,6 @@ import { ContactHero } from "@/components/contact/contact-hero";
 import { ContactForm } from "@/components/contact/contact-form";
 import { ContactInfo } from "@/components/contact/contact-info";
 import { ContactFAQ } from "@/components/contact/contact-faq";
-import { Section } from "@/components/ui/section";
 
 export const metadata: Metadata = {
   title: "Contact",
@@ -15,12 +14,14 @@ export default function ContactPage() {
   return (
     <>
       <ContactHero />
-      <Section>
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20">
-          <ContactInfo />
-          <ContactForm />
+      <section className="py-16 lg:py-24">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-20">
+            <ContactInfo />
+            <ContactForm />
+          </div>
         </div>
-      </Section>
+      </section>
       <ContactFAQ />
     </>
   );
