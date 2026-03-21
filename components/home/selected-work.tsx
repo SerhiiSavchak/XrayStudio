@@ -10,294 +10,331 @@ const projects = [
   {
     id: "meridian-consulting",
     title: "Meridian",
-    subtitle: "Consulting",
-    category: "Business Website",
+    category: "Consulting",
     year: "2024",
-    description: "Premium multi-page website for a management consulting firm with focus on trust and lead generation.",
     image: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=1600&h=1000&fit=crop",
-    tags: ["Strategy", "Design", "Development"],
-    color: "from-blue-500/10 to-purple-500/10",
   },
   {
     id: "sarah-mitchell",
-    title: "Sarah",
-    subtitle: "Mitchell",
+    title: "Sarah Mitchell",
     category: "Personal Brand",
     year: "2024",
-    description: "High-converting landing page for a marketing consultant with premium visual storytelling.",
     image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200&h=800&fit=crop",
-    tags: ["Landing Page", "Conversion"],
-    color: "from-amber-500/10 to-rose-500/10",
   },
   {
     id: "nexus-digital",
-    title: "Nexus",
-    subtitle: "Digital",
-    category: "Agency Website",
+    title: "Nexus Digital",
+    category: "Agency",
     year: "2023",
-    description: "Modern portfolio with immersive visual storytelling and micro-interactions.",
     image: "https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=1200&h=800&fit=crop",
-    tags: ["Portfolio", "Animation"],
-    color: "from-emerald-500/10 to-cyan-500/10",
   },
   {
     id: "vertex-finance",
-    title: "Vertex",
-    subtitle: "Finance",
-    category: "SaaS Platform",
+    title: "Vertex Finance",
+    category: "SaaS",
     year: "2023",
-    description: "Enterprise-grade financial dashboard with real-time data visualization.",
     image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&h=800&fit=crop",
-    tags: ["Dashboard", "SaaS"],
-    color: "from-violet-500/10 to-indigo-500/10",
   },
 ];
-
-function ProjectCard({ project, index, scrollProgress }: { project: typeof projects[0]; index: number; scrollProgress: any }) {
-  const cardRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(cardRef, { once: true, margin: "-10%" });
-
-  // Staggered reveals based on scroll position
-  const cardStart = index * 0.2;
-  const cardEnd = cardStart + 0.4;
-  
-  const cardOpacity = useTransform(scrollProgress, [cardStart, cardStart + 0.1], [0, 1]);
-  const cardY = useTransform(scrollProgress, [cardStart, cardStart + 0.15], [80, 0]);
-  const imageScale = useTransform(scrollProgress, [cardStart, cardEnd], [1.15, 1]);
-  const imageY = useTransform(scrollProgress, [cardStart, cardEnd], ["10%", "0%"]);
-
-  return (
-    <motion.div
-      ref={cardRef}
-      style={{ opacity: cardOpacity, y: cardY }}
-      className="flex-shrink-0 w-[85vw] md:w-[70vw] lg:w-[55vw] xl:w-[50vw]"
-    >
-      <Link href={`/work/${project.id}`} className="group block">
-        <div className="relative">
-          {/* Large background number */}
-          <motion.div
-            initial={{ opacity: 0, x: -40 }}
-            animate={isInView ? { opacity: 1, x: 0 } : {}}
-            transition={{ delay: 0.3, duration: 0.8 }}
-            className="absolute -top-16 lg:-top-24 -left-4 lg:-left-8 font-display text-[8rem] lg:text-[12rem] font-bold text-[rgb(var(--foreground))]/[0.02] leading-none select-none pointer-events-none z-0"
-          >
-            {String(index + 1).padStart(2, "0")}
-          </motion.div>
-
-          {/* Image container */}
-          <div className="relative aspect-[16/10] rounded-2xl lg:rounded-3xl overflow-hidden border border-[rgb(var(--border))]/40 bg-[rgb(var(--surface-2))]">
-            {/* Cinematic mask reveal */}
-            <motion.div 
-              className="absolute inset-0 overflow-hidden"
-              initial={{ clipPath: "inset(100% 0 0 0)" }}
-              animate={isInView ? { clipPath: "inset(0% 0 0 0)" } : {}}
-              transition={{ delay: 0.2, duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <motion.div style={{ scale: imageScale, y: imageY }} className="w-full h-full">
-                <Image
-                  src={project.image}
-                  alt={project.title}
-                  fill
-                  className="object-cover"
-                />
-              </motion.div>
-            </motion.div>
-
-            {/* Gradient overlay */}
-            <div className={`absolute inset-0 bg-gradient-to-t ${project.color} opacity-0 group-hover:opacity-100 transition-opacity duration-700`} />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
-            {/* Hover arrow */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              whileHover={{ scale: 1 }}
-              className="absolute top-6 right-6 w-12 h-12 rounded-full bg-[rgb(var(--foreground))] text-[rgb(var(--background))] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300"
-            >
-              <ArrowUpRight className="w-5 h-5" />
-            </motion.div>
-
-            {/* Year badge */}
-            <div className="absolute bottom-6 left-6 px-4 py-2 rounded-full bg-black/30 backdrop-blur-md border border-white/10">
-              <span className="text-xs font-medium text-white/90">{project.year}</span>
-            </div>
-          </div>
-
-          {/* Content below image */}
-          <div className="mt-8 lg:mt-10">
-            {/* Category */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: 0.4, duration: 0.6 }}
-              className="mb-4"
-            >
-              <span className="text-xs lg:text-sm font-medium uppercase tracking-[0.2em] text-[rgb(var(--muted-foreground))]">
-                {project.category}
-              </span>
-            </motion.div>
-
-            {/* Title - oversized split treatment */}
-            <motion.h3
-              initial={{ opacity: 0, y: 30 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: 0.5, duration: 0.8 }}
-              className="font-display text-4xl lg:text-5xl xl:text-6xl font-bold tracking-tight leading-[0.95] group-hover:text-[rgb(var(--muted-foreground))] transition-colors duration-300"
-            >
-              <span className="block text-[rgb(var(--foreground))]">{project.title}</span>
-              <span className="block text-[rgb(var(--foreground))]/50">{project.subtitle}</span>
-            </motion.h3>
-
-            {/* Description */}
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: 0.6, duration: 0.6 }}
-              className="mt-5 text-[rgb(var(--muted-foreground))] text-base lg:text-lg leading-relaxed max-w-lg"
-            >
-              {project.description}
-            </motion.p>
-
-            {/* Tags */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: 0.7, duration: 0.6 }}
-              className="mt-6 flex flex-wrap gap-2"
-            >
-              {project.tags.map(tag => (
-                <span
-                  key={tag}
-                  className="px-4 py-2 text-xs font-medium text-[rgb(var(--foreground))]/70 bg-[rgb(var(--surface-2))] rounded-full border border-[rgb(var(--border))]/50"
-                >
-                  {tag}
-                </span>
-              ))}
-            </motion.div>
-          </div>
-        </div>
-      </Link>
-    </motion.div>
-  );
-}
 
 export function SelectedWork() {
   const sectionRef = useRef<HTMLElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
-  const isHeaderInView = useInView(headerRef, { once: true, margin: "-100px" });
+  const isHeaderInView = useInView(headerRef, { once: true, margin: "-10%" });
+  const mosaicRef = useRef<HTMLDivElement>(null);
+  const isMosaicInView = useInView(mosaicRef, { once: true, margin: "-5%" });
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
-    offset: ["start start", "end end"],
+    offset: ["start end", "end start"],
   });
 
-  // Horizontal scroll transform
-  const x = useTransform(scrollYProgress, [0.1, 0.9], ["5%", "-75%"]);
-  
-  // Background parallax
-  const bgX = useTransform(scrollYProgress, [0, 1], ["0%", "-15%"]);
-  const glowOpacity = useTransform(scrollYProgress, [0, 0.5, 1], [0.3, 0.7, 0.3]);
+  // Parallax for background elements
+  const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "20%"]);
+  const titleY = useTransform(scrollYProgress, [0, 1], ["0%", "30%"]);
 
   return (
-    <section ref={sectionRef} className="relative h-[400vh] bg-[rgb(var(--background))]">
-      {/* Sticky container for horizontal scroll */}
-      <div className="sticky top-0 h-screen overflow-hidden">
-        {/* Background atmosphere */}
-        <motion.div style={{ x: bgX }} className="absolute inset-0 w-[120%]">
-          <motion.div
-            style={{ opacity: glowOpacity }}
-            className="absolute top-[20%] left-[30%] w-[600px] h-[600px] rounded-full"
-          >
-            <div 
-              className="w-full h-full rounded-full"
-              style={{
-                background: "radial-gradient(ellipse at center, rgb(var(--glow-intense))/0.06, transparent 60%)",
-                filter: "blur(80px)",
-              }}
-            />
-          </motion.div>
-          <motion.div
-            style={{ opacity: glowOpacity }}
-            className="absolute bottom-[10%] right-[20%] w-[500px] h-[500px] rounded-full"
-          >
-            <div 
-              className="w-full h-full rounded-full"
-              style={{
-                background: "radial-gradient(ellipse at center, rgb(var(--glow))/0.05, transparent 60%)",
-                filter: "blur(100px)",
-              }}
-            />
-          </motion.div>
-        </motion.div>
+    <section 
+      ref={sectionRef} 
+      className="relative py-32 lg:py-48 overflow-hidden bg-[rgb(var(--background))]"
+    >
+      {/* Background atmosphere */}
+      <motion.div 
+        style={{ y: bgY }} 
+        className="absolute inset-0 pointer-events-none"
+      >
+        <div 
+          className="absolute top-[20%] left-[10%] w-[600px] h-[600px] rounded-full"
+          style={{
+            background: "radial-gradient(ellipse at center, rgb(var(--glow-intense))/0.04, transparent 60%)",
+            filter: "blur(80px)",
+          }}
+        />
+        <div 
+          className="absolute bottom-[10%] right-[15%] w-[500px] h-[500px] rounded-full"
+          style={{
+            background: "radial-gradient(ellipse at center, rgb(var(--glow))/0.03, transparent 60%)",
+            filter: "blur(100px)",
+          }}
+        />
+      </motion.div>
 
-        {/* Section header - fixed position */}
-        <div ref={headerRef} className="absolute top-10 left-6 lg:left-16 z-20">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={isHeaderInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6 }}
-          >
-            <span className="text-xs lg:text-sm font-medium uppercase tracking-[0.25em] text-[rgb(var(--muted-foreground))]">
-              Selected Work
-            </span>
-            <h2 className="mt-3 lg:mt-4 font-display text-3xl lg:text-4xl xl:text-5xl font-bold text-[rgb(var(--foreground))] tracking-tight">
-              Recent projects
-            </h2>
-          </motion.div>
-        </div>
+      <div className="relative max-w-[1600px] mx-auto px-6 lg:px-16">
+        {/* Section Header - oversized typography statement */}
+        <div ref={headerRef} className="mb-20 lg:mb-32">
+          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
+            {/* Title */}
+            <div>
+              <motion.span
+                initial={{ opacity: 0, y: 20 }}
+                animate={isHeaderInView ? { opacity: 1, y: 0 } : {}}
+                transition={{ duration: 0.6 }}
+                className="inline-block text-xs lg:text-sm font-medium uppercase tracking-[0.25em] text-[rgb(var(--muted-foreground))] mb-6"
+              >
+                Selected Work
+              </motion.span>
+              
+              <h2 className="font-display text-5xl md:text-7xl lg:text-8xl xl:text-[9rem] font-bold tracking-[-0.03em] leading-[0.85]">
+                <span className="block overflow-hidden">
+                  <motion.span
+                    className="block text-[rgb(var(--foreground))]"
+                    initial={{ y: "100%" }}
+                    animate={isHeaderInView ? { y: "0%" } : {}}
+                    transition={{ duration: 1, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    Recent
+                  </motion.span>
+                </span>
+                <span className="block overflow-hidden">
+                  <motion.span
+                    className="block text-[rgb(var(--muted-foreground))]/50"
+                    initial={{ y: "100%" }}
+                    animate={isHeaderInView ? { y: "0%" } : {}}
+                    transition={{ duration: 1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    Projects
+                  </motion.span>
+                </span>
+              </h2>
+            </div>
 
-        {/* View all link - fixed position */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={isHeaderInView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="absolute top-10 right-6 lg:right-16 z-20"
-        >
-          <Link
-            href="/work"
-            className="inline-flex items-center gap-2 text-sm lg:text-base font-medium text-[rgb(var(--foreground))] hover:text-[rgb(var(--muted-foreground))] transition-colors group"
-          >
-            View all
-            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-          </Link>
-        </motion.div>
-
-        {/* Progress indicator */}
-        <div className="absolute bottom-10 left-6 lg:left-16 z-20 flex items-center gap-4">
-          <span className="text-xs font-medium text-[rgb(var(--muted-foreground))]">
-            {String(1).padStart(2, "0")}
-          </span>
-          <div className="w-24 lg:w-32 h-px bg-[rgb(var(--border))] overflow-hidden">
+            {/* View all link */}
             <motion.div
-              className="h-full bg-[rgb(var(--foreground))]"
-              style={{ width: useTransform(scrollYProgress, [0, 1], ["0%", "100%"]) }}
-            />
+              initial={{ opacity: 0, y: 20 }}
+              animate={isHeaderInView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="lg:pb-4"
+            >
+              <Link
+                href="/work"
+                className="group inline-flex items-center gap-3 text-base lg:text-lg font-medium text-[rgb(var(--foreground))] hover:text-[rgb(var(--muted-foreground))] transition-colors"
+              >
+                View all work
+                <span className="w-10 h-10 rounded-full border border-[rgb(var(--border))] flex items-center justify-center group-hover:bg-[rgb(var(--foreground))] group-hover:text-[rgb(var(--background))] group-hover:border-transparent transition-all duration-300">
+                  <ArrowRight className="w-4 h-4" />
+                </span>
+              </Link>
+            </motion.div>
           </div>
-          <span className="text-xs font-medium text-[rgb(var(--muted-foreground))]">
-            {String(projects.length).padStart(2, "0")}
-          </span>
         </div>
 
-        {/* Horizontal scrolling content */}
-        <div className="h-full flex items-center">
-          <motion.div
-            style={{ x }}
-            className="flex gap-10 lg:gap-16 pl-6 lg:pl-16 pr-[50vw] pt-24"
+        {/* Mosaic / Collage Layout */}
+        <div ref={mosaicRef} className="relative">
+          {/* Large background typography */}
+          <motion.div 
+            style={{ y: titleY }}
+            className="absolute -top-20 lg:-top-32 left-0 right-0 pointer-events-none select-none overflow-hidden"
           >
-            {projects.map((project, index) => (
-              <ProjectCard
-                key={project.id}
-                project={project}
-                index={index}
-                scrollProgress={scrollYProgress}
-              />
-            ))}
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={isMosaicInView ? { opacity: 0.02 } : {}}
+              transition={{ duration: 1, delay: 0.4 }}
+              className="font-display text-[20vw] lg:text-[18vw] font-bold tracking-[-0.04em] text-[rgb(var(--foreground))] whitespace-nowrap"
+            >
+              WORK
+            </motion.span>
           </motion.div>
-        </div>
 
-        {/* Gradient fades */}
-        <div className="absolute left-0 top-0 bottom-0 w-16 lg:w-32 bg-gradient-to-r from-[rgb(var(--background))] to-transparent pointer-events-none z-10" />
-        <div className="absolute right-0 top-0 bottom-0 w-32 lg:w-48 bg-gradient-to-l from-[rgb(var(--background))] to-transparent pointer-events-none z-10" />
-        <div className="absolute bottom-0 inset-x-0 h-24 bg-gradient-to-t from-[rgb(var(--background))] to-transparent pointer-events-none z-10" />
+          {/* Asymmetric grid layout */}
+          <div className="grid grid-cols-12 gap-4 lg:gap-6">
+            {/* Large featured item - spans 7 columns */}
+            <motion.div
+              initial={{ opacity: 0, y: 80, scale: 0.95 }}
+              animate={isMosaicInView ? { opacity: 1, y: 0, scale: 1 } : {}}
+              transition={{ duration: 1, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+              className="col-span-12 lg:col-span-7 row-span-2"
+            >
+              <Link href={`/work/${projects[0].id}`} className="group block relative">
+                <div className="relative aspect-[4/3] lg:aspect-[16/12] rounded-2xl lg:rounded-3xl overflow-hidden">
+                  {/* Image with mask reveal */}
+                  <motion.div 
+                    className="absolute inset-0"
+                    initial={{ clipPath: "inset(100% 0 0 0)" }}
+                    animate={isMosaicInView ? { clipPath: "inset(0% 0 0 0)" } : {}}
+                    transition={{ duration: 1.2, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    <Image
+                      src={projects[0].image}
+                      alt={projects[0].title}
+                      fill
+                      className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+                  </motion.div>
+
+                  {/* Content overlay */}
+                  <div className="absolute inset-0 flex flex-col justify-end p-6 lg:p-10">
+                    <div className="flex items-end justify-between">
+                      <div>
+                        <span className="text-xs lg:text-sm font-medium text-white/60 tracking-wider uppercase">
+                          {projects[0].category} / {projects[0].year}
+                        </span>
+                        <h3 className="mt-2 font-display text-3xl lg:text-5xl font-bold text-white tracking-tight">
+                          {projects[0].title}
+                        </h3>
+                      </div>
+                      <motion.div
+                        initial={{ scale: 0, opacity: 0 }}
+                        whileHover={{ scale: 1.1 }}
+                        animate={isMosaicInView ? { scale: 1, opacity: 1 } : {}}
+                        transition={{ duration: 0.4, delay: 0.6 }}
+                        className="w-14 h-14 rounded-full bg-white text-black flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                      >
+                        <ArrowUpRight className="w-6 h-6" />
+                      </motion.div>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            </motion.div>
+
+            {/* Top right - smaller item */}
+            <motion.div
+              initial={{ opacity: 0, y: 60, scale: 0.95 }}
+              animate={isMosaicInView ? { opacity: 1, y: 0, scale: 1 } : {}}
+              transition={{ duration: 1, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
+              className="col-span-12 lg:col-span-5"
+            >
+              <Link href={`/work/${projects[1].id}`} className="group block relative">
+                <div className="relative aspect-[4/3] rounded-2xl lg:rounded-3xl overflow-hidden">
+                  <motion.div 
+                    className="absolute inset-0"
+                    initial={{ clipPath: "inset(100% 0 0 0)" }}
+                    animate={isMosaicInView ? { clipPath: "inset(0% 0 0 0)" } : {}}
+                    transition={{ duration: 1.2, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    <Image
+                      src={projects[1].image}
+                      alt={projects[1].title}
+                      fill
+                      className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+                  </motion.div>
+
+                  <div className="absolute inset-0 flex flex-col justify-end p-5 lg:p-8">
+                    <span className="text-xs font-medium text-white/60 tracking-wider uppercase">
+                      {projects[1].category}
+                    </span>
+                    <h3 className="mt-1 font-display text-2xl lg:text-3xl font-bold text-white tracking-tight">
+                      {projects[1].title}
+                    </h3>
+                  </div>
+
+                  <div className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <ArrowUpRight className="w-4 h-4 text-white" />
+                  </div>
+                </div>
+              </Link>
+            </motion.div>
+
+            {/* Bottom right - smaller item */}
+            <motion.div
+              initial={{ opacity: 0, y: 60, scale: 0.95 }}
+              animate={isMosaicInView ? { opacity: 1, y: 0, scale: 1 } : {}}
+              transition={{ duration: 1, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+              className="col-span-12 lg:col-span-5"
+            >
+              <Link href={`/work/${projects[2].id}`} className="group block relative">
+                <div className="relative aspect-[4/3] rounded-2xl lg:rounded-3xl overflow-hidden">
+                  <motion.div 
+                    className="absolute inset-0"
+                    initial={{ clipPath: "inset(100% 0 0 0)" }}
+                    animate={isMosaicInView ? { clipPath: "inset(0% 0 0 0)" } : {}}
+                    transition={{ duration: 1.2, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    <Image
+                      src={projects[2].image}
+                      alt={projects[2].title}
+                      fill
+                      className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
+                  </motion.div>
+
+                  <div className="absolute inset-0 flex flex-col justify-end p-5 lg:p-8">
+                    <span className="text-xs font-medium text-white/60 tracking-wider uppercase">
+                      {projects[2].category}
+                    </span>
+                    <h3 className="mt-1 font-display text-2xl lg:text-3xl font-bold text-white tracking-tight">
+                      {projects[2].title}
+                    </h3>
+                  </div>
+
+                  <div className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <ArrowUpRight className="w-4 h-4 text-white" />
+                  </div>
+                </div>
+              </Link>
+            </motion.div>
+
+            {/* Full width bottom item */}
+            <motion.div
+              initial={{ opacity: 0, y: 80, scale: 0.95 }}
+              animate={isMosaicInView ? { opacity: 1, y: 0, scale: 1 } : {}}
+              transition={{ duration: 1, delay: 0.55, ease: [0.22, 1, 0.36, 1] }}
+              className="col-span-12"
+            >
+              <Link href={`/work/${projects[3].id}`} className="group block relative">
+                <div className="relative aspect-[21/9] lg:aspect-[3/1] rounded-2xl lg:rounded-3xl overflow-hidden">
+                  <motion.div 
+                    className="absolute inset-0"
+                    initial={{ clipPath: "inset(100% 0 0 0)" }}
+                    animate={isMosaicInView ? { clipPath: "inset(0% 0 0 0)" } : {}}
+                    transition={{ duration: 1.4, delay: 0.65, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    <Image
+                      src={projects[3].image}
+                      alt={projects[3].title}
+                      fill
+                      className="object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/30 to-transparent" />
+                  </motion.div>
+
+                  <div className="absolute inset-0 flex items-center p-6 lg:p-12">
+                    <div className="flex items-center justify-between w-full">
+                      <div>
+                        <span className="text-xs lg:text-sm font-medium text-white/60 tracking-wider uppercase">
+                          {projects[3].category} / {projects[3].year}
+                        </span>
+                        <h3 className="mt-2 font-display text-3xl lg:text-5xl xl:text-6xl font-bold text-white tracking-tight">
+                          {projects[3].title}
+                        </h3>
+                      </div>
+                      <motion.div
+                        whileHover={{ scale: 1.1 }}
+                        className="w-16 h-16 rounded-full bg-white text-black flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                      >
+                        <ArrowUpRight className="w-7 h-7" />
+                      </motion.div>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            </motion.div>
+          </div>
+        </div>
       </div>
     </section>
   );
