@@ -3,6 +3,7 @@ import { Inter, Syne, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
+import { CinematicLoader } from "@/components/layout/cinematic-loader";
 import { Providers } from "@/components/providers";
 
 const inter = Inter({
@@ -102,6 +103,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen bg-[rgb(var(--background))] text-[rgb(var(--foreground))] font-sans antialiased overflow-x-hidden">
         <Providers>
+          <CinematicLoader />
           <Header />
           <main className="relative">{children}</main>
           <Footer />
