@@ -2,30 +2,30 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowLeft, Home } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useLocale } from "@/lib/i18n/context";
 
 const content = {
   en: {
-    title: "Page Not Found",
-    description: "The page you're looking for doesn't exist or has been moved. Let's get you back on track.",
-    home: "Back to Home",
-    contact: "Get in Touch",
-    looking: "Looking for something specific?",
+    title: "Page not found",
+    description: "The page you're looking for doesn't exist or has been moved.",
+    home: "Back to home",
+    contact: "Get in touch",
+    links: "Quick links",
   },
   uk: {
     title: "Сторінку не знайдено",
-    description: "Сторінка, яку ви шукаєте, не існує або була переміщена. Повернемось на правильний шлях.",
+    description: "Сторінка, яку ви шукаєте, не існує або була переміщена.",
     home: "На головну",
     contact: "Зв'язатися",
-    looking: "Шукаєте щось конкретне?",
+    links: "Швидкі посилання",
   },
   ru: {
     title: "Страница не найдена",
-    description: "Страница, которую вы ищете, не существует или была перемещена. Вернёмся на правильный путь.",
+    description: "Страница, которую вы ищете, не существует или была перемещена.",
     home: "На главную",
     contact: "Связаться",
-    looking: "Ищете что-то конкретное?",
+    links: "Быстрые ссылки",
   },
 };
 
@@ -34,79 +34,105 @@ export default function NotFound() {
   const t = content[locale];
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-6">
-      <div className="text-center max-w-xl">
+    <div className="min-h-screen flex items-center justify-center px-6 relative overflow-hidden">
+      {/* Cinematic background */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-gradient-to-b from-[rgb(var(--surface-1))] via-[rgb(var(--background))] to-[rgb(var(--background))]" />
+        
         <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
+          className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80vw] h-[80vw] max-w-[800px] max-h-[800px] rounded-full"
+          style={{
+            background: "radial-gradient(ellipse at center, rgb(var(--glow-intense))/0.05, transparent 50%)",
+            filter: "blur(60px)",
+          }}
+          animate={{
+            scale: [1, 1.1, 1],
+            opacity: [0.3, 0.5, 0.3],
+          }}
+          transition={{
+            duration: 10,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+      </div>
+
+      <div className="relative z-10 text-center max-w-xl">
+        {/* 404 number */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.6 }}
           className="mb-8"
         >
-          <span className="text-[150px] md:text-[200px] font-bold leading-none bg-gradient-to-b from-foreground to-muted-foreground/20 bg-clip-text text-transparent">
+          <span className="font-display text-[140px] md:text-[180px] lg:text-[220px] font-bold leading-none text-[rgb(var(--foreground))]/[0.04]">
             404
           </span>
         </motion.div>
 
+        {/* Title */}
         <motion.h1
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="text-3xl md:text-4xl font-semibold text-foreground mb-4"
+          transition={{ delay: 0.15, duration: 0.7 }}
+          className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-[rgb(var(--foreground))] tracking-tight mb-6"
         >
           {t.title}
         </motion.h1>
 
+        {/* Description */}
         <motion.p
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="text-muted-foreground text-lg mb-8 leading-relaxed"
+          transition={{ delay: 0.25, duration: 0.7 }}
+          className="text-[rgb(var(--muted-foreground))] text-lg lg:text-xl mb-10 leading-relaxed font-light"
         >
           {t.description}
         </motion.p>
 
+        {/* CTAs */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
+          transition={{ delay: 0.35, duration: 0.6 }}
           className="flex flex-col sm:flex-row items-center justify-center gap-4"
         >
           <Link
             href="/"
-            className="group inline-flex items-center justify-center gap-2 h-14 px-8 text-base font-medium rounded-full bg-accent text-accent-foreground hover:bg-accent/90 transition-all duration-300"
+            className="group inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-semibold rounded-full bg-[rgb(var(--foreground))] text-[rgb(var(--background))] transition-all duration-300"
           >
-            <Home className="w-4 h-4" />
             {t.home}
+            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
           </Link>
           <Link
             href="/contact"
-            className="inline-flex items-center justify-center gap-2 h-14 px-8 text-base font-medium rounded-full border border-border bg-transparent text-foreground hover:bg-surface hover:border-accent/30 transition-all duration-300"
+            className="inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-medium rounded-full border border-[rgb(var(--border))]/50 text-[rgb(var(--foreground))] hover:bg-[rgb(var(--surface-2))]/30 hover:border-[rgb(var(--border))] transition-all duration-300"
           >
-            <ArrowLeft className="w-4 h-4" />
             {t.contact}
           </Link>
         </motion.div>
 
+        {/* Quick links */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-          className="mt-16 pt-8 border-t border-border/50"
+          transition={{ delay: 0.5, duration: 0.6 }}
+          className="mt-16 pt-10 border-t border-[rgb(var(--border))]/30"
         >
-          <p className="text-muted-foreground text-sm mb-4">{t.looking}</p>
-          <div className="flex flex-wrap items-center justify-center gap-4">
+          <p className="text-[rgb(var(--muted-foreground))] text-sm mb-5">{t.links}</p>
+          <div className="flex flex-wrap items-center justify-center gap-6 text-sm">
             {[
               { href: "/services", label: locale === "uk" ? "Послуги" : locale === "ru" ? "Услуги" : "Services" },
               { href: "/work", label: locale === "uk" ? "Роботи" : locale === "ru" ? "Работы" : "Work" },
               { href: "/about", label: locale === "uk" ? "Про мене" : locale === "ru" ? "Обо мне" : "About" },
-              { href: "/contact", label: locale === "uk" ? "Контакт" : locale === "ru" ? "Контакт" : "Contact" },
-            ].map((link, i) => (
-              <span key={link.href} className="flex items-center gap-4">
-                {i > 0 && <span className="text-border">|</span>}
-                <Link href={link.href} className="text-sm text-foreground hover:text-accent transition-colors duration-300">
-                  {link.label}
-                </Link>
-              </span>
+            ].map((link) => (
+              <Link 
+                key={link.href} 
+                href={link.href} 
+                className="text-[rgb(var(--foreground))] hover:text-[rgb(var(--glow-intense))] transition-colors"
+              >
+                {link.label}
+              </Link>
             ))}
           </div>
         </motion.div>
