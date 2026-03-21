@@ -1,0 +1,453 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Syne", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --radius: 0.5rem;
+}
+
+/* ========================================
+   DARK THEME (Default) - Cinematic, Deep, Premium
+   ======================================== */
+:root,
+.dark {
+  /* Core */
+  --background: 6 6 8;
+  --foreground: 250 250 250;
+  
+  /* Surfaces - layered depth */
+  --surface-1: 12 12 14;
+  --surface-2: 18 18 21;
+  --surface-3: 26 26 30;
+  --surface-4: 35 35 40;
+  
+  /* Card */
+  --card: 12 12 14;
+  --card-foreground: 250 250 250;
+  
+  /* Muted */
+  --muted: 30 30 35;
+  --muted-foreground: 140 140 150;
+  
+  /* Accent - subtle warm highlight */
+  --accent: 45 45 52;
+  --accent-foreground: 250 250 250;
+  
+  /* Border */
+  --border: 38 38 44;
+  --border-subtle: 28 28 32;
+  
+  /* Primary - inverted for dark */
+  --primary: 250 250 250;
+  --primary-foreground: 6 6 8;
+  
+  /* Secondary */
+  --secondary: 30 30 35;
+  --secondary-foreground: 250 250 250;
+  
+  /* Highlight glow */
+  --glow: 120 120 140;
+  --glow-intense: 180 180 200;
+  
+  /* Overlay */
+  --overlay: 0 0 0 / 0.8;
+  --overlay-subtle: 0 0 0 / 0.4;
+  
+  /* Status */
+  --success: 34 197 94;
+  --error: 239 68 68;
+}
+
+/* ========================================
+   LIGHT THEME - Editorial, Refined, Premium
+   ======================================== */
+.light {
+  /* Core */
+  --background: 252 252 253;
+  --foreground: 12 12 14;
+  
+  /* Surfaces - subtle depth */
+  --surface-1: 248 248 250;
+  --surface-2: 244 244 246;
+  --surface-3: 238 238 242;
+  --surface-4: 228 228 234;
+  
+  /* Card */
+  --card: 255 255 255;
+  --card-foreground: 12 12 14;
+  
+  /* Muted */
+  --muted: 244 244 246;
+  --muted-foreground: 100 100 110;
+  
+  /* Accent */
+  --accent: 238 238 242;
+  --accent-foreground: 12 12 14;
+  
+  /* Border */
+  --border: 228 228 234;
+  --border-subtle: 238 238 242;
+  
+  /* Primary */
+  --primary: 12 12 14;
+  --primary-foreground: 252 252 253;
+  
+  /* Secondary */
+  --secondary: 244 244 246;
+  --secondary-foreground: 12 12 14;
+  
+  /* Highlight glow */
+  --glow: 180 180 190;
+  --glow-intense: 140 140 160;
+  
+  /* Overlay */
+  --overlay: 255 255 255 / 0.9;
+  --overlay-subtle: 255 255 255 / 0.6;
+  
+  /* Status */
+  --success: 22 163 74;
+  --error: 220 38 38;
+}
+
+/* ========================================
+   BASE STYLES
+   ======================================== */
+* {
+  border-color: rgb(var(--border));
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: rgb(var(--background));
+  color: rgb(var(--foreground));
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Selection */
+::selection {
+  background-color: rgb(var(--primary) / 0.15);
+  color: rgb(var(--foreground));
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgb(var(--border));
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(var(--muted-foreground) / 0.5);
+}
+
+/* Focus */
+*:focus-visible {
+  outline: 2px solid rgb(var(--primary) / 0.5);
+  outline-offset: 2px;
+}
+
+/* ========================================
+   TYPOGRAPHY UTILITIES
+   ======================================== */
+.font-display {
+  font-family: var(--font-display);
+}
+
+.text-gradient {
+  background: linear-gradient(
+    135deg,
+    rgb(var(--foreground)) 0%,
+    rgb(var(--muted-foreground)) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-accent {
+  background: linear-gradient(
+    135deg,
+    rgb(var(--foreground)) 0%,
+    rgb(var(--glow-intense)) 50%,
+    rgb(var(--foreground)) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ========================================
+   SURFACE & DEPTH UTILITIES
+   ======================================== */
+.surface-1 {
+  background-color: rgb(var(--surface-1));
+}
+
+.surface-2 {
+  background-color: rgb(var(--surface-2));
+}
+
+.surface-3 {
+  background-color: rgb(var(--surface-3));
+}
+
+.surface-4 {
+  background-color: rgb(var(--surface-4));
+}
+
+/* Glass effect */
+.glass {
+  background: rgb(var(--surface-1) / 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.glass-strong {
+  background: rgb(var(--surface-2) / 0.95);
+  backdrop-filter: blur(40px);
+  -webkit-backdrop-filter: blur(40px);
+}
+
+/* Glow effects */
+.glow-sm {
+  box-shadow: 0 0 20px rgb(var(--glow) / 0.1);
+}
+
+.glow {
+  box-shadow: 0 0 40px rgb(var(--glow) / 0.15);
+}
+
+.glow-lg {
+  box-shadow: 0 0 80px rgb(var(--glow) / 0.2);
+}
+
+.glow-intense {
+  box-shadow: 
+    0 0 40px rgb(var(--glow-intense) / 0.15),
+    0 0 80px rgb(var(--glow) / 0.1);
+}
+
+/* Premium border glow */
+.border-glow {
+  position: relative;
+}
+
+.border-glow::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    rgb(var(--glow) / 0.3) 0%,
+    transparent 50%,
+    rgb(var(--glow) / 0.1) 100%
+  );
+  z-index: -1;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.border-glow:hover::before {
+  opacity: 1;
+}
+
+/* ========================================
+   NOISE & GRAIN TEXTURE
+   ======================================== */
+.noise {
+  position: relative;
+}
+
+.noise::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  opacity: 0.02;
+  pointer-events: none;
+  z-index: 1;
+  mix-blend-mode: overlay;
+}
+
+.dark .noise::after {
+  opacity: 0.03;
+}
+
+/* ========================================
+   GRADIENT UTILITIES
+   ======================================== */
+.gradient-radial {
+  background: radial-gradient(ellipse at center, var(--tw-gradient-stops));
+}
+
+.gradient-conic {
+  background: conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops));
+}
+
+/* Premium vignette */
+.vignette {
+  position: relative;
+}
+
+.vignette::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 0%,
+    rgb(var(--background) / 0.3) 70%,
+    rgb(var(--background) / 0.8) 100%
+  );
+  pointer-events: none;
+}
+
+/* ========================================
+   ANIMATION UTILITIES
+   ======================================== */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes pulse-slow {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 4s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  animation: shimmer 3s ease-in-out infinite;
+  background-size: 200% 100%;
+}
+
+/* ========================================
+   REDUCED MOTION
+   ======================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .animate-float,
+  .animate-pulse-slow,
+  .animate-shimmer {
+    animation: none !important;
+  }
+}
+
+/* ========================================
+   3D DEPTH & PERSPECTIVE
+   ======================================== */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.perspective-2000 {
+  perspective: 2000px;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+/* ========================================
+   LAYOUT UTILITIES
+   ======================================== */
+.container-wide {
+  width: 100%;
+  max-width: 1600px;
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .container-wide {
+    padding-inline: 3rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container-wide {
+    padding-inline: 4rem;
+  }
+}
+
+/* Section spacing */
+.section-padding {
+  padding-block: 5rem;
+}
+
+@media (min-width: 768px) {
+  .section-padding {
+    padding-block: 8rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .section-padding {
+    padding-block: 10rem;
+  }
+}
+
+/* ========================================
+   MASK UTILITIES
+   ======================================== */
+.mask-fade-b {
+  mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent 100%);
+}
+
+.mask-fade-t {
+  mask-image: linear-gradient(to top, black 60%, transparent 100%);
+  -webkit-mask-image: linear-gradient(to top, black 60%, transparent 100%);
+}
+
+.mask-fade-edges {
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 10%,
+    black 90%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    black 10%,
+    black 90%,
+    transparent 100%
+  );
+}
