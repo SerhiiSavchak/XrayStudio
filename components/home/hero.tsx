@@ -2,161 +2,123 @@
 
 import { useRef, useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { motion, useScroll, useTransform, useMotionValue, useSpring, useInView } from "framer-motion";
-import { ArrowRight, Play } from "lucide-react";
+import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
+import { ArrowRight } from "lucide-react";
 
-// Cinematic video/image background with parallax
-function CinematicMedia({ scrollProgress }: { scrollProgress: any }) {
+// ===========================================
+// LAYER 1: BACKGROUND VIDEO
+// ===========================================
+function VideoBackground({ scrollProgress }: { scrollProgress: any }) {
   const scale = useTransform(scrollProgress, [0, 1], [1, 1.15]);
-  const y = useTransform(scrollProgress, [0, 1], ["0%", "15%"]);
-  const opacity = useTransform(scrollProgress, [0, 0.6], [1, 0.3]);
-
+  const y = useTransform(scrollProgress, [0, 1], ["0%", "20%"]);
+  
   return (
     <motion.div 
-      style={{ scale, y, opacity }} 
+      style={{ scale, y }} 
       className="absolute inset-0 overflow-hidden"
     >
-      {/* Hero video/image - full bleed cinematic */}
-      <div className="absolute inset-0">
-        <Image
-          src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=2400&h=1600&fit=crop&q=90"
-          alt="Abstract digital art"
-          fill
-          priority
-          className="object-cover object-center"
-          sizes="100vw"
+      {/* Cinematic video - dark, atmospheric, premium */}
+      <video
+        autoPlay
+        muted
+        loop
+        playsInline
+        poster="https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=2400&h=1600&fit=crop&q=90"
+        className="absolute inset-0 w-full h-full object-cover"
+      >
+        {/* Premium cinematic video - dark tech/digital aesthetic */}
+        <source 
+          src="https://cdn.coverr.co/videos/coverr-digital-data-grid-1584/1080p.mp4" 
+          type="video/mp4" 
         />
-        {/* Cinematic color grade overlay */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[rgb(var(--background))]/80 via-[rgb(var(--background))]/60 to-[rgb(var(--background))]/70" />
-        {/* Vignette */}
-        <div 
-          className="absolute inset-0"
-          style={{ background: "radial-gradient(ellipse at center, transparent 30%, rgba(var(--background), 0.8) 100%)" }}
-        />
-      </div>
-
-      {/* Animated light rays */}
-      <motion.div
-        className="absolute top-0 left-1/4 w-[2px] h-[120%] bg-gradient-to-b from-white/0 via-white/[0.03] to-transparent"
-        style={{ rotate: "15deg", transformOrigin: "top" }}
-        animate={{ opacity: [0.3, 0.6, 0.3], y: ["-10%", "0%", "-10%"] }}
-        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <motion.div
-        className="absolute top-0 right-1/3 w-[1px] h-[140%] bg-gradient-to-b from-white/0 via-white/[0.02] to-transparent"
-        style={{ rotate: "-12deg", transformOrigin: "top" }}
-        animate={{ opacity: [0.2, 0.5, 0.2], y: ["-5%", "5%", "-5%"] }}
-        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+      </video>
+      
+      {/* Fallback image if video doesn't load */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center"
+        style={{ 
+          backgroundImage: "url('https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=2400&h=1600&fit=crop&q=90')",
+        }}
       />
     </motion.div>
   );
 }
 
-// Floating media panels for layered depth
-function FloatingMediaPanels({ scrollProgress, mouseX, mouseY, isLoaded }: { 
-  scrollProgress: any; 
-  mouseX: any; 
-  mouseY: any;
-  isLoaded: boolean;
-}) {
-  const y1 = useTransform(scrollProgress, [0, 1], ["0%", "40%"]);
-  const y2 = useTransform(scrollProgress, [0, 1], ["0%", "55%"]);
-  const opacity = useTransform(scrollProgress, [0, 0.5], [1, 0]);
-
+// ===========================================
+// LAYER 2: DARK ATMOSPHERIC OVERLAY
+// ===========================================
+function AtmosphericOverlay({ isLoaded }: { isLoaded: boolean }) {
   return (
-    <motion.div style={{ opacity }} className="absolute inset-0 pointer-events-none hidden lg:block">
-      {/* Large featured panel - right side */}
+    <>
+      {/* Primary dark overlay - creates depth */}
       <motion.div
+        initial={{ opacity: 0 }}
+        animate={isLoaded ? { opacity: 1 } : {}}
+        transition={{ duration: 1.2, ease: "easeOut" }}
+        className="absolute inset-0 bg-[rgb(var(--background))]/75"
+      />
+      
+      {/* Gradient overlay - adds dimension and directs eye */}
+      <div 
+        className="absolute inset-0"
         style={{
-          y: y1,
-          x: useTransform(mouseX, (v) => v * -0.15),
-          rotateY: useTransform(mouseX, (v) => v * 0.2),
-          rotateX: useTransform(mouseY, (v) => v * -0.15),
+          background: `
+            linear-gradient(135deg, 
+              rgba(var(--background), 0.9) 0%, 
+              rgba(var(--background), 0.6) 40%,
+              rgba(var(--background), 0.7) 100%
+            )
+          `,
         }}
-        className="absolute top-[15%] right-[4%] w-[420px] h-[280px] perspective-1000 preserve-3d"
-        initial={{ opacity: 0, y: 100, rotateY: 15, scale: 0.9 }}
-        animate={isLoaded ? { opacity: 1, y: 0, rotateY: 8, scale: 1 } : {}}
-        transition={{ delay: 0.8, duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
-      >
-        <div className="relative w-full h-full rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
-          <Image
-            src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop"
-            alt="Dashboard interface"
-            fill
-            className="object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-          {/* Scan line effect */}
-          <motion.div
-            className="absolute inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-white/20 to-transparent"
-            animate={{ top: ["-10%", "110%"] }}
-            transition={{ duration: 4, repeat: Infinity, ease: "linear", repeatDelay: 3 }}
-          />
-        </div>
-        {/* Glow effect */}
-        <div className="absolute -bottom-6 inset-x-6 h-12 bg-[rgb(var(--glow-intense))]/10 blur-2xl rounded-full" />
-      </motion.div>
-
-      {/* Secondary panel - bottom left */}
+      />
+      
+      {/* Vignette for cinematic framing */}
+      <div 
+        className="absolute inset-0"
+        style={{ 
+          background: "radial-gradient(ellipse 80% 80% at 50% 50%, transparent 20%, rgba(var(--background), 0.5) 100%)" 
+        }}
+      />
+      
+      {/* Subtle ambient glow - controlled, not flashy */}
       <motion.div
+        animate={{ 
+          opacity: [0.3, 0.5, 0.3],
+          scale: [1, 1.05, 1],
+        }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-[20%] left-[30%] w-[800px] h-[600px] rounded-full pointer-events-none"
         style={{
-          y: y2,
-          x: useTransform(mouseX, (v) => v * 0.1),
+          background: "radial-gradient(ellipse at center, rgba(var(--glow-intense), 0.08), transparent 60%)",
+          filter: "blur(100px)",
         }}
-        className="absolute bottom-[18%] left-[5%] w-[280px] h-[180px]"
-        initial={{ opacity: 0, x: -60, scale: 0.9 }}
-        animate={isLoaded ? { opacity: 1, x: 0, scale: 1 } : {}}
-        transition={{ delay: 1.1, duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
-      >
-        <div className="relative w-full h-full rounded-xl overflow-hidden border border-white/10 shadow-xl">
-          <Image
-            src="https://images.unsplash.com/photo-1551650975-87deedd944c3?w=600&h=400&fit=crop"
-            alt="Mobile interface"
-            fill
-            className="object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-br from-transparent to-black/30" />
-        </div>
-      </motion.div>
-
-      {/* Accent orb */}
-      <motion.div
-        className="absolute top-[55%] right-[28%] w-40 h-40 rounded-full"
-        initial={{ opacity: 0, scale: 0 }}
-        animate={isLoaded ? { opacity: 1, scale: 1 } : {}}
-        transition={{ delay: 1.4, duration: 1, ease: [0.22, 1, 0.36, 1] }}
-      >
-        <motion.div
-          animate={{ scale: [1, 1.3, 1], opacity: [0.15, 0.3, 0.15] }}
-          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-          className="w-full h-full rounded-full bg-[rgb(var(--glow-intense))] blur-3xl"
-        />
-      </motion.div>
-    </motion.div>
+      />
+    </>
   );
 }
 
-// Main content with cinematic typography reveals
-function HeroContent({ scrollProgress, isLoaded }: { scrollProgress: any; isLoaded: boolean }) {
-  const y = useTransform(scrollProgress, [0, 1], ["0%", "25%"]);
-  const opacity = useTransform(scrollProgress, [0, 0.4], [1, 0]);
+// ===========================================
+// LAYER 3: TYPOGRAPHY + CONTENT BLOCK
+// ===========================================
+function ContentBlock({ scrollProgress, isLoaded }: { scrollProgress: any; isLoaded: boolean }) {
+  const y = useTransform(scrollProgress, [0, 1], ["0%", "30%"]);
+  const opacity = useTransform(scrollProgress, [0, 0.5], [1, 0]);
 
   return (
     <motion.div
       style={{ opacity, y }}
-      className="relative z-20 min-h-[100svh] flex flex-col justify-center px-6 lg:px-16"
+      className="relative z-20 min-h-[100svh] flex items-center px-6 lg:px-16"
     >
-      <div className="max-w-[1400px] mx-auto w-full pt-32 pb-20 lg:pt-40 lg:pb-32">
-        <div className="max-w-4xl">
-          {/* Status badge */}
+      <div className="max-w-[1400px] mx-auto w-full">
+        <div className="max-w-3xl">
+          {/* Status badge - subtle, premium */}
           <motion.div
-            initial={{ opacity: 0, y: 30, filter: "blur(10px)" }}
+            initial={{ opacity: 0, y: 40, filter: "blur(10px)" }}
             animate={isLoaded ? { opacity: 1, y: 0, filter: "blur(0px)" } : {}}
-            transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="mb-8 lg:mb-10"
+            transition={{ duration: 0.9, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            className="mb-8"
           >
-            <span className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-white/5 border border-white/10 text-sm font-medium text-white/70 backdrop-blur-md">
+            <span className="inline-flex items-center gap-3 px-5 py-2.5 rounded-full bg-white/[0.03] border border-white/[0.08] text-sm font-medium text-white/60 backdrop-blur-md">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
@@ -165,26 +127,24 @@ function HeroContent({ scrollProgress, isLoaded }: { scrollProgress: any; isLoad
             </span>
           </motion.div>
 
-          {/* Headline - cinematic staggered reveal */}
-          <h1 className="font-display text-[clamp(3.5rem,11vw,9rem)] font-bold tracking-[-0.03em] leading-[0.88]">
-            {/* Line 1 */}
+          {/* Main headline - oversized, cinematic, staggered reveal */}
+          <h1 className="font-display text-[clamp(3rem,10vw,8rem)] font-bold tracking-[-0.03em] leading-[0.9]">
             <span className="block overflow-hidden">
               <motion.span
                 className="block text-white"
-                initial={{ y: "120%", opacity: 0 }}
-                animate={isLoaded ? { y: "0%", opacity: 1 } : {}}
-                transition={{ duration: 1.2, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                initial={{ y: "120%", rotateX: 45 }}
+                animate={isLoaded ? { y: "0%", rotateX: 0 } : {}}
+                transition={{ duration: 1.2, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
               >
                 Websites that
               </motion.span>
             </span>
-            {/* Line 2 - gradient */}
-            <span className="block overflow-hidden mt-1 lg:mt-2">
+            <span className="block overflow-hidden mt-1">
               <motion.span
                 className="block text-transparent bg-clip-text bg-gradient-to-r from-white via-[rgb(var(--glow-intense))] to-[rgb(var(--glow))]"
-                initial={{ y: "120%", opacity: 0 }}
-                animate={isLoaded ? { y: "0%", opacity: 1 } : {}}
-                transition={{ duration: 1.2, delay: 0.55, ease: [0.22, 1, 0.36, 1] }}
+                initial={{ y: "120%", rotateX: 45 }}
+                animate={isLoaded ? { y: "0%", rotateX: 0 } : {}}
+                transition={{ duration: 1.2, delay: 0.45, ease: [0.22, 1, 0.36, 1] }}
               >
                 drive growth
               </motion.span>
@@ -195,8 +155,8 @@ function HeroContent({ scrollProgress, isLoaded }: { scrollProgress: any; isLoad
           <motion.p
             initial={{ opacity: 0, y: 50, filter: "blur(8px)" }}
             animate={isLoaded ? { opacity: 1, y: 0, filter: "blur(0px)" } : {}}
-            transition={{ duration: 1, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-8 lg:mt-10 text-lg lg:text-xl xl:text-2xl text-white/60 max-w-xl leading-relaxed font-light"
+            transition={{ duration: 1, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-8 text-lg lg:text-xl xl:text-2xl text-white/50 max-w-xl leading-relaxed font-light"
           >
             Premium websites for businesses that want to stand out, 
             convert visitors, and scale with confidence.
@@ -206,47 +166,25 @@ function HeroContent({ scrollProgress, isLoaded }: { scrollProgress: any; isLoad
           <motion.div
             initial={{ opacity: 0, y: 40 }}
             animate={isLoaded ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.9, delay: 0.85, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-10 lg:mt-12 flex flex-col sm:flex-row gap-4"
+            transition={{ duration: 0.9, delay: 0.75, ease: [0.22, 1, 0.36, 1] }}
+            className="mt-10 flex flex-col sm:flex-row gap-4"
           >
+            {/* Primary CTA */}
             <Link href="/contact" className="group relative">
-              <div className="absolute -inset-1 bg-gradient-to-r from-[rgb(var(--glow))]/30 to-[rgb(var(--glow-intense))]/30 rounded-xl blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="absolute -inset-1 bg-gradient-to-r from-[rgb(var(--glow))]/20 to-[rgb(var(--glow-intense))]/20 rounded-xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               <span className="relative flex items-center justify-center gap-3 px-8 py-4 rounded-xl bg-white text-[rgb(var(--background))] font-semibold text-base transition-all duration-300 group-hover:gap-4">
                 Start a project
                 <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </span>
             </Link>
 
+            {/* Secondary CTA */}
             <Link
               href="/work"
-              className="group flex items-center justify-center gap-3 px-8 py-4 rounded-xl border border-white/20 bg-white/5 backdrop-blur-sm font-semibold text-base text-white hover:bg-white/10 hover:border-white/30 transition-all duration-300"
+              className="flex items-center justify-center gap-3 px-8 py-4 rounded-xl border border-white/15 bg-white/[0.02] font-semibold text-base text-white hover:bg-white/[0.06] hover:border-white/25 transition-all duration-300"
             >
-              <Play className="w-4 h-4" />
               View work
             </Link>
-          </motion.div>
-
-          {/* Trust indicators */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={isLoaded ? { opacity: 1 } : {}}
-            transition={{ delay: 1.1, duration: 0.8 }}
-            className="mt-16 lg:mt-20 pt-8 border-t border-white/10"
-          >
-            <div className="flex flex-wrap items-center gap-x-8 lg:gap-x-10 gap-y-3 text-sm text-white/50">
-              <span className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-[rgb(var(--glow-intense))]" />
-                Modern tech stack
-              </span>
-              <span className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-[rgb(var(--glow-intense))]" />
-                Performance focused
-              </span>
-              <span className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-[rgb(var(--glow-intense))]" />
-                Conversion optimized
-              </span>
-            </div>
           </motion.div>
         </div>
       </div>
@@ -254,7 +192,99 @@ function HeroContent({ scrollProgress, isLoaded }: { scrollProgress: any; isLoad
   );
 }
 
-// Scroll indicator
+// ===========================================
+// LAYER 4: ONE LARGE FOREGROUND VISUAL ELEMENT
+// ===========================================
+function ForegroundVisual({ scrollProgress, mouseX, mouseY, isLoaded }: { 
+  scrollProgress: any; 
+  mouseX: any; 
+  mouseY: any;
+  isLoaded: boolean;
+}) {
+  const y = useTransform(scrollProgress, [0, 1], ["0%", "50%"]);
+  const opacity = useTransform(scrollProgress, [0, 0.4], [1, 0]);
+
+  return (
+    <motion.div 
+      style={{ opacity }} 
+      className="absolute inset-0 pointer-events-none hidden lg:block"
+    >
+      {/* Single large floating UI panel - right side */}
+      <motion.div
+        style={{
+          y,
+          x: useTransform(mouseX, (v) => v * -0.08),
+          rotateY: useTransform(mouseX, (v) => v * 0.15),
+          rotateX: useTransform(mouseY, (v) => v * -0.1),
+        }}
+        className="absolute top-[18%] right-[6%] w-[480px] h-[320px]"
+        initial={{ opacity: 0, y: 100, rotateY: 20, scale: 0.9 }}
+        animate={isLoaded ? { opacity: 1, y: 0, rotateY: 6, scale: 1 } : {}}
+        transition={{ delay: 0.9, duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
+        style={{ perspective: "1200px", transformStyle: "preserve-3d" }}
+      >
+        {/* Browser/UI mockup frame */}
+        <div className="relative w-full h-full rounded-2xl overflow-hidden border border-white/[0.08] bg-[rgb(var(--surface-1))]/80 backdrop-blur-sm shadow-2xl">
+          {/* Browser chrome bar */}
+          <div className="h-10 bg-[rgb(var(--surface-2))]/90 border-b border-white/[0.06] flex items-center px-4 gap-2">
+            <div className="flex gap-1.5">
+              <div className="w-3 h-3 rounded-full bg-white/10" />
+              <div className="w-3 h-3 rounded-full bg-white/10" />
+              <div className="w-3 h-3 rounded-full bg-white/10" />
+            </div>
+            <div className="flex-1 flex justify-center">
+              <div className="px-4 py-1 rounded-md bg-white/[0.04] text-xs text-white/30 font-mono">
+                xray.studio
+              </div>
+            </div>
+          </div>
+          
+          {/* UI content preview */}
+          <div className="p-6 space-y-4">
+            {/* Header skeleton */}
+            <div className="flex justify-between items-center">
+              <div className="w-24 h-4 rounded bg-white/10" />
+              <div className="flex gap-3">
+                <div className="w-12 h-3 rounded bg-white/[0.06]" />
+                <div className="w-12 h-3 rounded bg-white/[0.06]" />
+                <div className="w-12 h-3 rounded bg-white/[0.06]" />
+              </div>
+            </div>
+            
+            {/* Hero skeleton */}
+            <div className="mt-8 space-y-3">
+              <div className="w-3/4 h-8 rounded bg-white/10" />
+              <div className="w-1/2 h-8 rounded bg-gradient-to-r from-[rgb(var(--glow-intense))]/20 to-[rgb(var(--glow))]/10" />
+            </div>
+            
+            <div className="mt-4 w-2/3 h-3 rounded bg-white/[0.06]" />
+            <div className="w-1/2 h-3 rounded bg-white/[0.04]" />
+            
+            {/* CTA skeleton */}
+            <div className="mt-6 flex gap-3">
+              <div className="w-28 h-10 rounded-lg bg-white/15" />
+              <div className="w-24 h-10 rounded-lg bg-white/[0.04] border border-white/[0.08]" />
+            </div>
+          </div>
+          
+          {/* Subtle scan line */}
+          <motion.div
+            className="absolute inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-[rgb(var(--glow-intense))]/20 to-transparent"
+            animate={{ top: ["0%", "100%", "0%"] }}
+            transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
+          />
+        </div>
+        
+        {/* Glow beneath panel */}
+        <div className="absolute -bottom-8 inset-x-8 h-16 bg-[rgb(var(--glow-intense))]/8 blur-3xl rounded-full" />
+      </motion.div>
+    </motion.div>
+  );
+}
+
+// ===========================================
+// SCROLL INDICATOR
+// ===========================================
 function ScrollIndicator({ scrollProgress, isLoaded }: { scrollProgress: any; isLoaded: boolean }) {
   const opacity = useTransform(scrollProgress, [0, 0.1], [1, 0]);
   
@@ -263,25 +293,28 @@ function ScrollIndicator({ scrollProgress, isLoaded }: { scrollProgress: any; is
       style={{ opacity }}
       initial={{ opacity: 0, y: 20 }}
       animate={isLoaded ? { opacity: 1, y: 0 } : {}}
-      transition={{ delay: 1.5, duration: 0.8 }}
-      className="absolute bottom-8 lg:bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 z-30"
+      transition={{ delay: 1.2, duration: 0.8 }}
+      className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 z-30"
     >
-      <span className="text-[10px] uppercase tracking-[0.25em] text-white/40">Scroll</span>
+      <span className="text-[10px] uppercase tracking-[0.3em] text-white/30">Scroll</span>
       <motion.div
         animate={{ y: [0, 8, 0] }}
-        transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-        className="w-5 h-8 rounded-full border border-white/20 flex items-start justify-center p-1.5"
+        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+        className="w-5 h-8 rounded-full border border-white/15 flex items-start justify-center p-1.5"
       >
         <motion.div
-          animate={{ opacity: [1, 0.3, 1], y: [0, 8, 0] }}
-          transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-          className="w-1 h-1.5 rounded-full bg-white/60"
+          animate={{ opacity: [1, 0.3, 1], y: [0, 6, 0] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          className="w-1 h-1.5 rounded-full bg-white/50"
         />
       </motion.div>
     </motion.div>
   );
 }
 
+// ===========================================
+// MAIN HERO COMPONENT
+// ===========================================
 export function Hero() {
   const containerRef = useRef<HTMLElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -291,21 +324,20 @@ export function Hero() {
     offset: ["start start", "end start"],
   });
 
-  // Mouse parallax
+  // Mouse parallax for foreground element
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
-  const smoothMouseX = useSpring(mouseX, { stiffness: 40, damping: 25 });
-  const smoothMouseY = useSpring(mouseY, { stiffness: 40, damping: 25 });
+  const smoothMouseX = useSpring(mouseX, { stiffness: 30, damping: 20 });
+  const smoothMouseY = useSpring(mouseY, { stiffness: 30, damping: 20 });
 
   useEffect(() => {
-    // Trigger entrance animations after mount
     const timer = setTimeout(() => setIsLoaded(true), 100);
 
     const handleMouse = (e: MouseEvent) => {
       const { clientX, clientY } = e;
       const { innerWidth, innerHeight } = window;
-      mouseX.set((clientX - innerWidth / 2) / innerWidth * 40);
-      mouseY.set((clientY - innerHeight / 2) / innerHeight * 40);
+      mouseX.set((clientX - innerWidth / 2) / innerWidth * 30);
+      mouseY.set((clientY - innerHeight / 2) / innerHeight * 30);
     };
     
     window.addEventListener("mousemove", handleMouse);
@@ -318,27 +350,30 @@ export function Hero() {
   return (
     <section
       ref={containerRef}
-      className="relative min-h-[100svh] lg:min-h-[110vh] overflow-hidden bg-[rgb(var(--background))]"
+      className="relative h-[100svh] lg:h-screen overflow-hidden bg-[rgb(var(--background))]"
     >
-      {/* Layer 0: Cinematic media background */}
-      <CinematicMedia scrollProgress={scrollYProgress} />
+      {/* Layer 1: Video background */}
+      <VideoBackground scrollProgress={scrollYProgress} />
 
-      {/* Layer 1: Floating media panels */}
-      <FloatingMediaPanels 
+      {/* Layer 2: Dark atmospheric overlay */}
+      <AtmosphericOverlay isLoaded={isLoaded} />
+
+      {/* Layer 3: Typography + content */}
+      <ContentBlock scrollProgress={scrollYProgress} isLoaded={isLoaded} />
+
+      {/* Layer 4: One large foreground visual */}
+      <ForegroundVisual 
         scrollProgress={scrollYProgress} 
         mouseX={smoothMouseX} 
         mouseY={smoothMouseY}
         isLoaded={isLoaded}
       />
 
-      {/* Layer 2: Main content */}
-      <HeroContent scrollProgress={scrollYProgress} isLoaded={isLoaded} />
-
       {/* Scroll indicator */}
       <ScrollIndicator scrollProgress={scrollYProgress} isLoaded={isLoaded} />
 
-      {/* Bottom gradient transition */}
-      <div className="absolute bottom-0 inset-x-0 h-48 bg-gradient-to-t from-[rgb(var(--background))] to-transparent pointer-events-none z-20" />
+      {/* Bottom gradient transition to next section */}
+      <div className="absolute bottom-0 inset-x-0 h-32 bg-gradient-to-t from-[rgb(var(--background))] to-transparent pointer-events-none z-20" />
     </section>
   );
 }
