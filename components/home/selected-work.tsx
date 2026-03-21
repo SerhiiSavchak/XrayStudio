@@ -10,114 +10,138 @@ const projects = [
   {
     id: "meridian-consulting",
     title: "Meridian",
+    subtitle: "Strategic consulting redefined",
     category: "Consulting",
+    services: ["Design", "Development", "Strategy"],
     year: "2024",
     image: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=1600&h=1000&fit=crop",
-    size: "large",
   },
   {
     id: "sarah-mitchell",
     title: "Sarah Mitchell",
+    subtitle: "Personal brand that connects",
     category: "Personal Brand",
+    services: ["Branding", "Web Design", "Content"],
     year: "2024",
-    image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200&h=800&fit=crop",
-    size: "medium",
+    image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1600&h=1000&fit=crop",
   },
   {
     id: "nexus-digital",
     title: "Nexus Digital",
+    subtitle: "Agency of the future",
     category: "Agency",
+    services: ["Design System", "Development"],
     year: "2023",
-    image: "https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=1200&h=800&fit=crop",
-    size: "medium",
+    image: "https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=1600&h=1000&fit=crop",
   },
   {
     id: "vertex-finance",
     title: "Vertex Finance",
-    category: "SaaS",
+    subtitle: "Fintech made human",
+    category: "SaaS Platform",
+    services: ["UX/UI", "Development", "Analytics"],
     year: "2023",
-    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&h=800&fit=crop",
-    size: "wide",
-  },
-  {
-    id: "aurora-wellness",
-    title: "Aurora Wellness",
-    category: "Health",
-    year: "2023",
-    image: "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=1200&h=800&fit=crop",
-    size: "tall",
+    image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1600&h=1000&fit=crop",
   },
 ];
 
-// Individual project panel with cinematic reveal
-function ProjectPanel({ 
+// Individual project card
+function ProjectCard({ 
   project, 
   index, 
-  isInView,
-  parallaxY,
+  progress 
 }: { 
   project: typeof projects[0]; 
   index: number;
-  isInView: boolean;
-  parallaxY: any;
+  progress: any;
 }) {
-  const delays = [0.1, 0.2, 0.3, 0.15, 0.25];
-  const delay = delays[index] || 0.1;
+  const cardStart = index / projects.length;
+  const cardEnd = (index + 1) / projects.length;
+  const cardCenter = (cardStart + cardEnd) / 2;
+  
+  // Scale up when card is in center view
+  const scale = useTransform(
+    progress,
+    [cardStart, cardCenter, cardEnd],
+    [0.85, 1, 0.85]
+  );
+  
+  const opacity = useTransform(
+    progress,
+    [cardStart - 0.1, cardStart, cardCenter, cardEnd, cardEnd + 0.1],
+    [0.4, 0.7, 1, 0.7, 0.4]
+  );
 
   return (
-    <motion.div
-      style={{ y: parallaxY }}
-      initial={{ opacity: 0, y: 80, scale: 0.95 }}
-      animate={isInView ? { opacity: 1, y: 0, scale: 1 } : {}}
-      transition={{ 
-        duration: 1.2, 
-        delay, 
-        ease: [0.22, 1, 0.36, 1] 
-      }}
-      className="relative group"
+    <motion.div 
+      style={{ scale, opacity }}
+      className="flex-shrink-0 w-[85vw] md:w-[75vw] lg:w-[65vw] max-w-[1100px] h-[70vh] md:h-[75vh] relative group"
     >
-      <Link href={`/work/${project.id}`} className="block">
-        {/* Image container with mask reveal */}
-        <div className="relative overflow-hidden rounded-2xl lg:rounded-3xl">
-          <motion.div 
-            className="relative aspect-[4/3]"
-            initial={{ clipPath: "inset(100% 0 0 0)" }}
-            animate={isInView ? { clipPath: "inset(0% 0 0 0)" } : {}}
-            transition={{ 
-              duration: 1.4, 
-              delay: delay + 0.1, 
-              ease: [0.22, 1, 0.36, 1] 
-            }}
-          >
+      <Link href={`/work/${project.id}`} className="block h-full">
+        <div className="relative h-full rounded-2xl lg:rounded-3xl overflow-hidden bg-[rgb(var(--surface-1))] border border-white/[0.06]">
+          {/* Project image */}
+          <div className="absolute inset-0">
             <Image
               src={project.image}
               alt={project.title}
               fill
               className="object-cover transition-transform duration-700 group-hover:scale-105"
             />
-            {/* Gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-          </motion.div>
-
-          {/* Content overlay */}
-          <div className="absolute inset-0 flex flex-col justify-end p-5 lg:p-8">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.8, delay: delay + 0.4 }}
-            >
-              <span className="text-xs lg:text-sm font-medium text-white/50 tracking-wider uppercase">
-                {project.category}
-              </span>
-              <h3 className="mt-1.5 font-display text-2xl lg:text-3xl xl:text-4xl font-bold text-white tracking-tight">
-                {project.title}
-              </h3>
-            </motion.div>
+            {/* Overlay gradient */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
           </div>
 
-          {/* Hover arrow */}
-          <div className="absolute top-4 right-4 w-12 h-12 rounded-full bg-white/0 backdrop-blur-sm border border-white/0 flex items-center justify-center opacity-0 group-hover:opacity-100 group-hover:bg-white/10 group-hover:border-white/20 transition-all duration-300">
-            <ArrowUpRight className="w-5 h-5 text-white" />
+          {/* Content overlay */}
+          <div className="relative h-full flex flex-col justify-between p-6 md:p-8 lg:p-12">
+            {/* Top row - category & year */}
+            <div className="flex items-center justify-between">
+              <span className="px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-sm text-xs font-medium text-white/80 uppercase tracking-wider">
+                {project.category}
+              </span>
+              <span className="text-sm text-white/40 font-mono">
+                {project.year}
+              </span>
+            </div>
+
+            {/* Bottom content */}
+            <div>
+              {/* Services tags */}
+              <div className="flex flex-wrap gap-2 mb-4">
+                {project.services.map((service) => (
+                  <span 
+                    key={service}
+                    className="text-xs text-white/50 font-medium"
+                  >
+                    {service}
+                  </span>
+                ))}
+              </div>
+
+              {/* Title & subtitle */}
+              <h3 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight">
+                {project.title}
+              </h3>
+              <p className="mt-2 text-base md:text-lg text-white/60 max-w-md">
+                {project.subtitle}
+              </p>
+
+              {/* CTA */}
+              <div className="mt-6 flex items-center gap-3 text-sm font-medium text-white group/cta">
+                <span className="opacity-60 group-hover/cta:opacity-100 transition-opacity">
+                  View project
+                </span>
+                <span className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-white group-hover:border-transparent transition-all duration-300">
+                  <ArrowUpRight className="w-4 h-4 group-hover:text-black transition-colors" />
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Project number */}
+          <div className="absolute top-6 right-6 md:top-8 md:right-8 lg:top-12 lg:right-12">
+            <span className="font-display text-6xl md:text-7xl lg:text-8xl font-bold text-white/[0.06]">
+              {String(index + 1).padStart(2, "0")}
+            </span>
           </div>
         </div>
       </Link>
@@ -128,88 +152,55 @@ function ProjectPanel({
 export function SelectedWork() {
   const sectionRef = useRef<HTMLElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
-  const gridRef = useRef<HTMLDivElement>(null);
-  
-  const isHeaderInView = useInView(headerRef, { once: true, margin: "-15%" });
-  const isGridInView = useInView(gridRef, { once: true, margin: "-5%" });
+  const isHeaderInView = useInView(headerRef, { once: true, margin: "-10%" });
 
+  // Scroll progress for horizontal movement
   const { scrollYProgress } = useScroll({
     target: sectionRef,
-    offset: ["start end", "end start"],
+    offset: ["start start", "end end"],
   });
 
-  // Different parallax speeds for layered depth
-  const bgTextY = useTransform(scrollYProgress, [0, 1], ["0%", "40%"]);
-  const panel1Y = useTransform(scrollYProgress, [0, 1], ["0%", "-5%"]);
-  const panel2Y = useTransform(scrollYProgress, [0, 1], ["0%", "-15%"]);
-  const panel3Y = useTransform(scrollYProgress, [0, 1], ["0%", "-10%"]);
-  const panel4Y = useTransform(scrollYProgress, [0, 1], ["0%", "-20%"]);
-  const panel5Y = useTransform(scrollYProgress, [0, 1], ["0%", "-8%"]);
-
-  const parallaxValues = [panel1Y, panel2Y, panel3Y, panel4Y, panel5Y];
+  // Horizontal scroll transform
+  const x = useTransform(
+    scrollYProgress,
+    [0, 1],
+    ["5%", `-${(projects.length - 1) * 70}%`]
+  );
 
   return (
     <section 
       ref={sectionRef} 
-      className="relative py-32 lg:py-48 overflow-hidden bg-[rgb(var(--background))]"
+      className="relative bg-[rgb(var(--background))]"
+      // Height = viewport + scroll distance for horizontal movement
+      style={{ height: `${100 + projects.length * 80}vh` }}
     >
-      {/* Atmospheric background glow */}
-      <div 
-        className="absolute top-1/4 left-1/4 w-[800px] h-[800px] rounded-full pointer-events-none"
-        style={{
-          background: "radial-gradient(ellipse at center, rgba(var(--glow-intense), 0.04), transparent 60%)",
-          filter: "blur(100px)",
-        }}
-      />
-
-      {/* Large background typography - moves slower */}
-      <motion.div 
-        style={{ y: bgTextY }}
-        className="absolute top-[10%] left-0 right-0 pointer-events-none select-none overflow-hidden"
-      >
-        <motion.span
-          initial={{ opacity: 0 }}
-          animate={isGridInView ? { opacity: 0.025 } : {}}
-          transition={{ duration: 1.2, delay: 0.2 }}
-          className="font-display text-[22vw] font-bold tracking-[-0.04em] text-white whitespace-nowrap"
+      {/* Sticky container */}
+      <div className="sticky top-0 h-screen overflow-hidden">
+        {/* Section header */}
+        <div 
+          ref={headerRef} 
+          className="absolute top-0 left-0 right-0 z-20 px-6 lg:px-16 pt-20 lg:pt-28"
         >
-          WORK
-        </motion.span>
-      </motion.div>
-
-      <div className="relative max-w-[1600px] mx-auto px-6 lg:px-16">
-        {/* Section Header */}
-        <div ref={headerRef} className="mb-20 lg:mb-28">
-          <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-8">
+          <div className="max-w-[1600px] mx-auto flex flex-col md:flex-row md:items-end md:justify-between gap-6">
             <div>
               <motion.span
                 initial={{ opacity: 0, y: 20 }}
                 animate={isHeaderInView ? { opacity: 1, y: 0 } : {}}
                 transition={{ duration: 0.6 }}
-                className="inline-block text-xs lg:text-sm font-medium uppercase tracking-[0.25em] text-white/40 mb-6"
+                className="inline-block text-xs font-medium uppercase tracking-[0.25em] text-white/40 mb-4"
               >
                 Selected Work
               </motion.span>
               
-              <h2 className="font-display text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold tracking-[-0.03em] leading-[0.9]">
-                <span className="block overflow-hidden">
+              <h2 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight">
+                <span className="overflow-hidden block">
                   <motion.span
                     className="block text-white"
                     initial={{ y: "100%" }}
                     animate={isHeaderInView ? { y: "0%" } : {}}
                     transition={{ duration: 1, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
                   >
-                    Recent
-                  </motion.span>
-                </span>
-                <span className="block overflow-hidden">
-                  <motion.span
-                    className="block text-white/40"
-                    initial={{ y: "100%" }}
-                    animate={isHeaderInView ? { y: "0%" } : {}}
-                    transition={{ duration: 1, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-                  >
-                    Projects
+                    Recent Projects
                   </motion.span>
                 </span>
               </h2>
@@ -219,14 +210,13 @@ export function SelectedWork() {
               initial={{ opacity: 0, y: 20 }}
               animate={isHeaderInView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: 0.3 }}
-              className="lg:pb-4"
             >
               <Link
                 href="/work"
-                className="group inline-flex items-center gap-3 text-base font-medium text-white hover:text-white/70 transition-colors"
+                className="group inline-flex items-center gap-3 text-sm font-medium text-white hover:text-white/70 transition-colors"
               >
                 View all work
-                <span className="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-white group-hover:text-black group-hover:border-transparent transition-all duration-300">
+                <span className="w-9 h-9 rounded-full border border-white/20 flex items-center justify-center group-hover:bg-white group-hover:text-black group-hover:border-transparent transition-all duration-300">
                   <ArrowRight className="w-4 h-4" />
                 </span>
               </Link>
@@ -234,74 +224,64 @@ export function SelectedWork() {
           </div>
         </div>
 
-        {/* Cinematic Montage Grid - asymmetric with parallax */}
-        <div ref={gridRef} className="relative">
-          {/* Desktop: Asymmetric montage layout */}
-          <div className="hidden lg:grid grid-cols-12 gap-6 auto-rows-[280px]">
-            {/* Large panel - left side, spans 2 rows */}
-            <div className="col-span-7 row-span-2">
-              <ProjectPanel 
-                project={projects[0]} 
-                index={0} 
-                isInView={isGridInView}
-                parallaxY={panel1Y}
-              />
-            </div>
-            
-            {/* Medium panel - top right */}
-            <div className="col-span-5">
-              <ProjectPanel 
-                project={projects[1]} 
-                index={1} 
-                isInView={isGridInView}
-                parallaxY={panel2Y}
-              />
-            </div>
-            
-            {/* Medium panel - middle right */}
-            <div className="col-span-5">
-              <ProjectPanel 
-                project={projects[2]} 
-                index={2} 
-                isInView={isGridInView}
-                parallaxY={panel3Y}
-              />
-            </div>
-            
-            {/* Wide panel - bottom, spans full width */}
-            <div className="col-span-8">
-              <ProjectPanel 
-                project={projects[3]} 
-                index={3} 
-                isInView={isGridInView}
-                parallaxY={panel4Y}
-              />
-            </div>
-            
-            {/* Tall panel - bottom right */}
-            <div className="col-span-4">
-              <ProjectPanel 
-                project={projects[4]} 
-                index={4} 
-                isInView={isGridInView}
-                parallaxY={panel5Y}
-              />
-            </div>
-          </div>
-
-          {/* Mobile: Stack layout */}
-          <div className="lg:hidden space-y-6">
-            {projects.slice(0, 4).map((project, index) => (
-              <ProjectPanel 
+        {/* Horizontal scroll track */}
+        <div className="absolute inset-0 flex items-center pt-20">
+          <motion.div 
+            style={{ x }}
+            className="flex items-center gap-6 md:gap-8 lg:gap-12 pl-6 lg:pl-16"
+          >
+            {projects.map((project, index) => (
+              <ProjectCard 
                 key={project.id}
                 project={project} 
-                index={index} 
-                isInView={isGridInView}
-                parallaxY={parallaxValues[index]}
+                index={index}
+                progress={scrollYProgress}
               />
             ))}
+            
+            {/* End card - View all */}
+            <motion.div 
+              className="flex-shrink-0 w-[60vw] md:w-[50vw] lg:w-[40vw] max-w-[600px] h-[70vh] md:h-[75vh] flex items-center justify-center"
+            >
+              <Link 
+                href="/work"
+                className="group flex flex-col items-center text-center p-12"
+              >
+                <div className="w-20 h-20 rounded-full border border-white/20 flex items-center justify-center mb-8 group-hover:bg-white group-hover:border-transparent transition-all duration-500">
+                  <ArrowRight className="w-6 h-6 text-white group-hover:text-black transition-colors" />
+                </div>
+                <span className="font-display text-3xl md:text-4xl font-bold text-white mb-2">
+                  View all work
+                </span>
+                <span className="text-white/40 text-sm">
+                  Explore the full portfolio
+                </span>
+              </Link>
+            </motion.div>
+          </motion.div>
+        </div>
+
+        {/* Progress indicator */}
+        <div className="absolute bottom-12 left-6 lg:left-16 z-20">
+          <div className="flex items-center gap-4">
+            <span className="text-xs font-mono text-white/40">
+              <motion.span className="text-white">
+                {/* Dynamic number based on scroll */}
+              </motion.span>
+              / {String(projects.length).padStart(2, "0")}
+            </span>
+            <div className="w-24 h-px bg-white/10 overflow-hidden">
+              <motion.div 
+                style={{ scaleX: scrollYProgress, transformOrigin: "left" }}
+                className="h-full bg-white/50"
+              />
+            </div>
           </div>
         </div>
+
+        {/* Gradient overlays for depth */}
+        <div className="absolute inset-y-0 left-0 w-24 bg-gradient-to-r from-[rgb(var(--background))] to-transparent pointer-events-none z-10" />
+        <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-[rgb(var(--background))] to-transparent pointer-events-none z-10" />
       </div>
     </section>
   );
