@@ -2,23 +2,24 @@
 
 import { useRef, useEffect, useState, Suspense, useMemo } from "react";
 import Link from "next/link";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Float, RoundedBox } from "@react-three/drei";
-import { ArrowRight } from "lucide-react";
+import { Text, RoundedBox } from "@react-three/drei";
+import { ArrowRight, CheckCircle2 } from "lucide-react";
 import * as THREE from "three";
+import { useTheme } from "@/lib/theme/context";
 
 // ===========================================
-// CINEMATIC HERO - PREMIUM DIGITAL STAGE
-// Strong focal point, clear depth layers, 
-// dramatic lighting, responsive camera
+// DIGITAL LAUNCH STAGE HERO
+// Premium opening scene for a web development studio
+// 5 Objects: Main Browser, Mobile Panel, Deep Background, Glass Layer, Status Chip
 // ===========================================
 
-// Enhanced camera rig with stronger movement
+// Camera with smooth cursor-reactive movement
 function CameraRig() {
   const { camera } = useThree();
   const mouseRef = useRef({ x: 0, y: 0 });
-  const targetRef = useRef({ x: 0, y: 0, z: 12 });
+  const targetRef = useRef({ x: 0, y: 0 });
   
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -29,325 +30,269 @@ function CameraRig() {
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
-  useFrame((state, delta) => {
-    // Stronger camera orbit effect
-    targetRef.current.x = mouseRef.current.x * 3;
-    targetRef.current.y = mouseRef.current.y * 2 + 0.5;
+  useFrame((_, delta) => {
+    targetRef.current.x = mouseRef.current.x * 1.5;
+    targetRef.current.y = mouseRef.current.y * 0.8;
     
-    // Smooth interpolation with good damping
-    camera.position.x += (targetRef.current.x - camera.position.x) * delta * 1.5;
-    camera.position.y += (targetRef.current.y - camera.position.y) * delta * 1.5;
-    camera.position.z = 12;
-    
-    // Look at center with slight offset based on mouse
-    camera.lookAt(
-      mouseRef.current.x * 0.5,
-      mouseRef.current.y * 0.3,
-      0
-    );
+    camera.position.x += (targetRef.current.x - camera.position.x) * delta * 2;
+    camera.position.y += (targetRef.current.y - camera.position.y) * delta * 2;
+    camera.lookAt(0, 0, 0);
   });
 
   return null;
 }
 
-// Background ambient layer - deep space with subtle glow
-function BackgroundLayer() {
-  const meshRef = useRef<THREE.Mesh>(null);
-  
-  useFrame((state) => {
-    if (meshRef.current) {
-      const material = meshRef.current.material as THREE.ShaderMaterial;
-      if (material.uniforms) {
-        material.uniforms.uTime.value = state.clock.elapsedTime;
-      }
-    }
-  });
-
-  const shader = useMemo(() => ({
-    uniforms: {
-      uTime: { value: 0 },
-    },
-    vertexShader: `
-      varying vec2 vUv;
-      void main() {
-        vUv = uv;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-      }
-    `,
-    fragmentShader: `
-      uniform float uTime;
-      varying vec2 vUv;
-      
-      void main() {
-        vec2 center = vec2(0.5, 0.5);
-        float dist = distance(vUv, center);
-        
-        // Deep radial gradient
-        vec3 deep = vec3(0.02, 0.02, 0.04);
-        vec3 mid = vec3(0.05, 0.06, 0.1);
-        vec3 glow = vec3(0.08, 0.1, 0.18);
-        
-        // Breathing glow
-        float pulse = sin(uTime * 0.3) * 0.5 + 0.5;
-        float glowIntensity = smoothstep(0.8, 0.0, dist) * (0.3 + pulse * 0.2);
-        
-        vec3 color = mix(glow, mid, smoothstep(0.0, 0.5, dist));
-        color = mix(color, deep, smoothstep(0.5, 1.0, dist));
-        color += glowIntensity * vec3(0.1, 0.12, 0.2);
-        
-        gl_FragColor = vec4(color, 1.0);
-      }
-    `,
-  }), []);
-
-  return (
-    <mesh ref={meshRef} position={[0, 0, -25]}>
-      <planeGeometry args={[60, 40]} />
-      <shaderMaterial attach="material" {...shader} />
-    </mesh>
-  );
-}
-
-// Dramatic spotlight system
-function Lighting() {
+// Premium lighting system
+function Lighting({ isDark }: { isDark: boolean }) {
   return (
     <>
-      {/* Main key light - dramatic top-right */}
+      {/* Key light */}
       <spotLight
-        position={[8, 8, 8]}
+        position={[10, 10, 10]}
         angle={0.4}
         penumbra={0.8}
-        intensity={2}
-        color="#a0b0e0"
-        castShadow
+        intensity={isDark ? 1.5 : 2}
+        color={isDark ? "#a8b8d8" : "#ffffff"}
       />
-      
-      {/* Fill light - softer from left */}
+      {/* Fill light */}
       <spotLight
-        position={[-6, 4, 6]}
+        position={[-8, 5, 8]}
         angle={0.5}
         penumbra={1}
-        intensity={0.8}
-        color="#6080b0"
+        intensity={isDark ? 0.6 : 0.8}
+        color={isDark ? "#6080b0" : "#e8f0ff"}
       />
-      
-      {/* Rim light - from behind for edge definition */}
-      <spotLight
-        position={[0, 2, -10]}
-        angle={0.6}
-        penumbra={0.5}
-        intensity={1.5}
-        color="#4060a0"
+      {/* Rim light */}
+      <pointLight
+        position={[0, 0, -10]}
+        intensity={isDark ? 1 : 0.5}
+        color={isDark ? "#4060a0" : "#d0e0ff"}
       />
-      
-      {/* Ambient base */}
-      <ambientLight intensity={0.15} color="#8090b0" />
-      
-      {/* Point light on primary element */}
-      <pointLight position={[2, 0, 2]} intensity={1} color="#8090c0" distance={10} />
+      {/* Ambient */}
+      <ambientLight intensity={isDark ? 0.2 : 0.5} />
     </>
   );
 }
 
-// PRIMARY FOCAL ELEMENT - Large dominant browser/interface
-function PrimaryInterface() {
+// OBJECT 1: Main Browser Stage - Large dominant screen with premium website preview
+function MainBrowserStage({ isDark }: { isDark: boolean }) {
   const groupRef = useRef<THREE.Group>(null);
   
   useFrame((state) => {
     if (groupRef.current) {
-      // Gentle floating motion
-      groupRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.4) * 0.15;
-      groupRef.current.rotation.y = 0.12 + Math.sin(state.clock.elapsedTime * 0.2) * 0.02;
-      groupRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.15) * 0.01;
+      groupRef.current.position.y = Math.sin(state.clock.elapsedTime * 0.3) * 0.08;
+      groupRef.current.rotation.y = -0.15 + Math.sin(state.clock.elapsedTime * 0.15) * 0.01;
     }
   });
 
+  const colors = isDark 
+    ? { frame: "#0a0c12", screen: "#080a0f", accent: "#1a2540", text: "#ffffff", textMuted: "#8090b0" }
+    : { frame: "#f0f2f5", screen: "#ffffff", accent: "#e8ecf2", text: "#0a0c12", textMuted: "#6070a0" };
+
   return (
-    <group ref={groupRef} position={[1.5, 0, -2]}>
-      {/* Main browser frame - the dominant element */}
-      <RoundedBox args={[11, 7, 0.15]} radius={0.15} smoothness={4}>
-        <meshStandardMaterial
-          color="#0a0c12"
-          metalness={0.3}
-          roughness={0.7}
-          envMapIntensity={0.5}
-        />
+    <group ref={groupRef} position={[1.8, 0.3, -2]} rotation={[0.02, -0.15, 0]}>
+      {/* Browser frame */}
+      <RoundedBox args={[10, 6.5, 0.12]} radius={0.15} smoothness={4}>
+        <meshStandardMaterial color={colors.frame} metalness={0.2} roughness={0.8} />
       </RoundedBox>
       
-      {/* Screen glow behind */}
-      <mesh position={[0, 0, -0.2]}>
-        <planeGeometry args={[12, 8]} />
-        <meshBasicMaterial color="#1a2540" transparent opacity={0.5} />
+      {/* Glow behind */}
+      <mesh position={[0, 0, -0.15]}>
+        <planeGeometry args={[11, 7.5]} />
+        <meshBasicMaterial color={colors.accent} transparent opacity={0.4} />
       </mesh>
       
-      {/* Browser header */}
-      <mesh position={[0, 3.1, 0.08]}>
-        <planeGeometry args={[10.6, 0.6]} />
-        <meshStandardMaterial color="#12151c" metalness={0.1} roughness={0.9} />
+      {/* Browser chrome */}
+      <mesh position={[0, 2.9, 0.07]}>
+        <planeGeometry args={[9.6, 0.5]} />
+        <meshStandardMaterial color={isDark ? "#12151c" : "#e5e8ed"} />
       </mesh>
       
       {/* Traffic lights */}
       {[
-        { x: -4.8, color: "#ff5f57" },
-        { x: -4.4, color: "#febc2e" },
-        { x: -4.0, color: "#28c840" },
+        { x: -4.3, color: "#ff5f57" },
+        { x: -3.95, color: "#febc2e" },
+        { x: -3.6, color: "#28c840" },
       ].map((dot, i) => (
-        <mesh key={i} position={[dot.x, 3.1, 0.1]}>
-          <circleGeometry args={[0.1, 16]} />
+        <mesh key={i} position={[dot.x, 2.9, 0.08]}>
+          <circleGeometry args={[0.08, 16]} />
           <meshBasicMaterial color={dot.color} />
         </mesh>
       ))}
       
       {/* URL bar */}
-      <RoundedBox args={[5, 0.35, 0.02]} radius={0.1} position={[0, 3.1, 0.1]}>
-        <meshStandardMaterial color="#1a1e28" />
+      <RoundedBox args={[4, 0.28, 0.01]} radius={0.08} position={[0, 2.9, 0.08]}>
+        <meshStandardMaterial color={isDark ? "#1a1e28" : "#dce0e8"} />
       </RoundedBox>
       
-      {/* Content area - clean interface mockup */}
-      <mesh position={[0, 0, 0.08]}>
-        <planeGeometry args={[10.6, 5.8]} />
-        <meshStandardMaterial color="#080a0f" metalness={0.1} roughness={0.95} />
+      {/* Screen content area */}
+      <mesh position={[0, 0, 0.07]}>
+        <planeGeometry args={[9.6, 5.3]} />
+        <meshStandardMaterial color={colors.screen} />
       </mesh>
       
-      {/* Hero section highlight */}
-      <mesh position={[0, 1.2, 0.1]}>
-        <planeGeometry args={[10, 2.5]} />
-        <meshStandardMaterial 
-          color="#101420" 
-          emissive="#1a2540"
-          emissiveIntensity={0.3}
-        />
+      {/* Hero section within the website */}
+      <mesh position={[0, 1, 0.08]}>
+        <planeGeometry args={[9, 2.2]} />
+        <meshStandardMaterial color={colors.accent} emissive={colors.accent} emissiveIntensity={0.1} />
       </mesh>
       
-      {/* Large headline text placeholder */}
-      <mesh position={[-2, 1.5, 0.12]}>
-        <planeGeometry args={[5, 0.4]} />
-        <meshBasicMaterial color="#ffffff" transparent opacity={0.9} />
-      </mesh>
-      <mesh position={[-3, 0.9, 0.12]}>
-        <planeGeometry args={[3, 0.25]} />
-        <meshBasicMaterial color="#ffffff" transparent opacity={0.5} />
-      </mesh>
+      {/* Large headline text */}
+      <Text
+        position={[-2.5, 1.3, 0.1]}
+        fontSize={0.5}
+        color={colors.text}
+        anchorX="left"
+        font="/fonts/Geist-Bold.ttf"
+        maxWidth={5}
+      >
+        Premium Digital
+      </Text>
+      <Text
+        position={[-2.5, 0.7, 0.1]}
+        fontSize={0.5}
+        color={colors.textMuted}
+        anchorX="left"
+        font="/fonts/Geist-Bold.ttf"
+        maxWidth={5}
+      >
+        Experiences
+      </Text>
       
       {/* CTA button */}
-      <RoundedBox args={[1.8, 0.5, 0.02]} radius={0.15} position={[-3.5, 0.2, 0.12]}>
-        <meshBasicMaterial color="#ffffff" />
+      <RoundedBox args={[1.6, 0.4, 0.02]} radius={0.12} position={[-3.2, 0.1, 0.1]}>
+        <meshStandardMaterial color={colors.text} />
       </RoundedBox>
       
-      {/* Right side visual */}
-      <mesh position={[3, 0.5, 0.12]}>
-        <planeGeometry args={[4, 3]} />
-        <meshStandardMaterial 
-          color="#1a2030" 
-          emissive="#252d45"
-          emissiveIntensity={0.2}
-        />
+      {/* Right visual area - abstract shape */}
+      <mesh position={[2.8, 0.9, 0.09]}>
+        <planeGeometry args={[3.2, 2.4]} />
+        <meshStandardMaterial color={isDark ? "#1a2030" : "#e0e5ed"} emissive={isDark ? "#252d45" : "#c8d0e0"} emissiveIntensity={0.15} />
       </mesh>
       
-      {/* Bottom cards */}
-      {[-3, 0, 3].map((x, i) => (
-        <RoundedBox key={i} args={[2.8, 1.5, 0.03]} radius={0.1} position={[x, -1.8, 0.1]}>
-          <meshStandardMaterial 
-            color="#0c0f15" 
-            emissive={i === 1 ? "#1a2540" : "#0f1218"}
-            emissiveIntensity={0.2}
-          />
+      {/* Bottom feature cards */}
+      {[-2.8, 0, 2.8].map((x, i) => (
+        <RoundedBox key={i} args={[2.6, 1.3, 0.02]} radius={0.08} position={[x, -1.6, 0.08]}>
+          <meshStandardMaterial color={isDark ? "#0c0f15" : "#f5f7fa"} emissive={isDark ? "#151a28" : "#e8ecf2"} emissiveIntensity={0.1} />
         </RoundedBox>
       ))}
       
-      {/* Screen reflection sweep */}
-      <mesh position={[0, 0, 0.15]}>
-        <planeGeometry args={[10.6, 5.8]} />
-        <meshBasicMaterial 
-          color="#ffffff" 
-          transparent 
-          opacity={0.02}
-        />
+      {/* Subtle reflection sweep */}
+      <mesh position={[0, 0, 0.12]}>
+        <planeGeometry args={[9.6, 5.3]} />
+        <meshBasicMaterial color="#ffffff" transparent opacity={isDark ? 0.015 : 0.03} />
       </mesh>
     </group>
   );
 }
 
-// Secondary panel - left side, supporting depth
-function SecondaryPanel() {
-  const meshRef = useRef<THREE.Group>(null);
+// OBJECT 2: Mobile Preview Panel - Tall phone screen showing responsive version
+function MobilePreviewPanel({ isDark }: { isDark: boolean }) {
+  const groupRef = useRef<THREE.Group>(null);
   
   useFrame((state) => {
-    if (meshRef.current) {
-      meshRef.current.position.y = -0.5 + Math.sin(state.clock.elapsedTime * 0.35) * 0.2;
-      meshRef.current.rotation.y = 0.25 + Math.sin(state.clock.elapsedTime * 0.25) * 0.03;
+    if (groupRef.current) {
+      groupRef.current.position.y = 0.1 + Math.sin(state.clock.elapsedTime * 0.35 + 1) * 0.1;
+      groupRef.current.rotation.y = 0.1 + Math.sin(state.clock.elapsedTime * 0.2) * 0.02;
     }
   });
 
+  const colors = isDark
+    ? { frame: "#0c0e14", screen: "#080a0f", accent: "#1e2840" }
+    : { frame: "#e8eaef", screen: "#ffffff", accent: "#e0e5ed" };
+
   return (
-    <group ref={meshRef} position={[-6, -0.5, -6]} rotation={[0, 0.25, 0.02]}>
-      <RoundedBox args={[5, 7, 0.1]} radius={0.1} smoothness={4}>
-        <meshStandardMaterial
-          color="#0c0e14"
-          metalness={0.2}
-          roughness={0.8}
-          emissive="#151a28"
-          emissiveIntensity={0.15}
-        />
+    <group ref={groupRef} position={[-3.5, 0.1, 1]} rotation={[0, 0.1, 0.02]}>
+      {/* Phone frame */}
+      <RoundedBox args={[2.2, 4.5, 0.1]} radius={0.2} smoothness={4}>
+        <meshStandardMaterial color={colors.frame} metalness={0.3} roughness={0.7} />
       </RoundedBox>
       
-      {/* Panel content - code-like lines */}
-      {[...Array(10)].map((_, i) => (
-        <mesh key={i} position={[-1.5 + (i % 2) * 0.5, 2.5 - i * 0.5, 0.06]}>
-          <planeGeometry args={[1.5 + Math.random() * 1.5, 0.08]} />
-          <meshBasicMaterial 
-            color={i % 3 === 0 ? "#4a5580" : "#2a2e3d"} 
-            transparent 
-            opacity={0.6 - i * 0.04} 
-          />
-        </mesh>
+      {/* Screen */}
+      <mesh position={[0, 0, 0.06]}>
+        <planeGeometry args={[2, 4.1]} />
+        <meshStandardMaterial color={colors.screen} />
+      </mesh>
+      
+      {/* Status bar */}
+      <mesh position={[0, 1.85, 0.07]}>
+        <planeGeometry args={[1.8, 0.15]} />
+        <meshStandardMaterial color={colors.accent} />
+      </mesh>
+      
+      {/* Mobile hero section */}
+      <mesh position={[0, 0.8, 0.07]}>
+        <planeGeometry args={[1.9, 1.5]} />
+        <meshStandardMaterial color={colors.accent} emissive={colors.accent} emissiveIntensity={0.1} />
+      </mesh>
+      
+      {/* Mobile text placeholders */}
+      <mesh position={[0, 1.1, 0.08]}>
+        <planeGeometry args={[1.4, 0.15]} />
+        <meshBasicMaterial color={isDark ? "#ffffff" : "#0a0c12"} transparent opacity={0.9} />
+      </mesh>
+      <mesh position={[-0.2, 0.85, 0.08]}>
+        <planeGeometry args={[1, 0.08]} />
+        <meshBasicMaterial color={isDark ? "#ffffff" : "#0a0c12"} transparent opacity={0.5} />
+      </mesh>
+      
+      {/* Mobile CTA */}
+      <RoundedBox args={[1.2, 0.28, 0.01]} radius={0.1} position={[0, 0.5, 0.08]}>
+        <meshStandardMaterial color={isDark ? "#ffffff" : "#0a0c12"} />
+      </RoundedBox>
+      
+      {/* Mobile cards */}
+      {[-0.6, 0.6].map((y, i) => (
+        <RoundedBox key={i} args={[1.8, 0.8, 0.01]} radius={0.06} position={[0, y - 0.8, 0.07]}>
+          <meshStandardMaterial color={isDark ? "#0f1218" : "#f0f2f5"} />
+        </RoundedBox>
       ))}
     </group>
   );
 }
 
-// Deep background screen - furthest layer
-function BackgroundScreen() {
+// OBJECT 3: Deep Background Panel - Atmospheric depth layer
+function DeepBackgroundPanel({ isDark }: { isDark: boolean }) {
   const meshRef = useRef<THREE.Mesh>(null);
   
   useFrame((state) => {
     if (meshRef.current) {
-      meshRef.current.position.y = 1 + Math.sin(state.clock.elapsedTime * 0.2) * 0.1;
+      meshRef.current.position.y = 0.5 + Math.sin(state.clock.elapsedTime * 0.15) * 0.05;
     }
   });
 
   return (
-    <mesh ref={meshRef} position={[5, 1, -12]} rotation={[0, -0.2, 0]}>
-      <planeGeometry args={[14, 9]} />
+    <mesh ref={meshRef} position={[4, 0.5, -10]} rotation={[0, -0.12, 0]}>
+      <planeGeometry args={[12, 8]} />
       <meshStandardMaterial
-        color="#080a10"
-        emissive="#101828"
-        emissiveIntensity={0.4}
+        color={isDark ? "#0a0c14" : "#e8ecf2"}
+        emissive={isDark ? "#101828" : "#d0d8e8"}
+        emissiveIntensity={0.3}
         transparent
-        opacity={0.9}
+        opacity={0.85}
       />
     </mesh>
   );
 }
 
-// Foreground glass accent - right side
-function ForegroundGlass() {
+// OBJECT 4: Foreground Glass Layer - Cinematic depth accent
+function ForegroundGlassLayer({ isDark }: { isDark: boolean }) {
   const meshRef = useRef<THREE.Mesh>(null);
   
   useFrame((state) => {
     if (meshRef.current) {
-      meshRef.current.position.x = 7 + Math.sin(state.clock.elapsedTime * 0.15) * 0.2;
-      meshRef.current.rotation.y = -0.35 + Math.sin(state.clock.elapsedTime * 0.1) * 0.02;
+      meshRef.current.position.x = 5.5 + Math.sin(state.clock.elapsedTime * 0.12) * 0.15;
+      meshRef.current.rotation.y = -0.3 + Math.sin(state.clock.elapsedTime * 0.08) * 0.02;
     }
   });
 
   return (
-    <mesh ref={meshRef} position={[7, 1, 4]} rotation={[0.05, -0.35, 0.05]}>
-      <planeGeometry args={[4, 8]} />
+    <mesh ref={meshRef} position={[5.5, 0.5, 3]} rotation={[0.03, -0.3, 0.02]}>
+      <planeGeometry args={[3, 6]} />
       <meshStandardMaterial
-        color="#1a2030"
+        color={isDark ? "#1a2030" : "#e0e8f0"}
         transparent
-        opacity={0.15}
+        opacity={isDark ? 0.12 : 0.2}
         metalness={0.9}
         roughness={0.1}
       />
@@ -355,73 +300,57 @@ function ForegroundGlass() {
   );
 }
 
-// Bottom foreground element
-function BottomForeground() {
-  const meshRef = useRef<THREE.Mesh>(null);
+// OBJECT 5: Status Chip - Small floating product label
+function StatusChip({ isDark }: { isDark: boolean }) {
+  const groupRef = useRef<THREE.Group>(null);
   
   useFrame((state) => {
-    if (meshRef.current) {
-      meshRef.current.position.y = -4.5 + Math.sin(state.clock.elapsedTime * 0.18) * 0.1;
+    if (groupRef.current) {
+      groupRef.current.position.y = 2.8 + Math.sin(state.clock.elapsedTime * 0.4) * 0.08;
+      groupRef.current.rotation.z = Math.sin(state.clock.elapsedTime * 0.25) * 0.02;
     }
   });
 
   return (
-    <mesh ref={meshRef} position={[-3, -4.5, 6]} rotation={[0.6, 0.1, 0]}>
-      <planeGeometry args={[12, 2.5]} />
-      <meshStandardMaterial
-        color="#151a25"
-        transparent
-        opacity={0.2}
-        metalness={0.8}
-        roughness={0.2}
-      />
-    </mesh>
+    <group ref={groupRef} position={[6.5, 2.8, 0]} rotation={[0, -0.15, 0]}>
+      <RoundedBox args={[2.4, 0.5, 0.04]} radius={0.15}>
+        <meshStandardMaterial
+          color={isDark ? "#101420" : "#f0f2f5"}
+          emissive={isDark ? "#1e2840" : "#e0e5f0"}
+          emissiveIntensity={0.2}
+        />
+      </RoundedBox>
+      <Text
+        position={[0, 0, 0.03]}
+        fontSize={0.14}
+        color={isDark ? "#8090b0" : "#4050a0"}
+        anchorX="center"
+        font="/fonts/GeistMono-Regular.ttf"
+      >
+        Strategy / Design / Code
+      </Text>
+    </group>
   );
 }
 
-// Floating small accent element
-function FloatingAccent() {
-  return (
-    <Float speed={2} rotationIntensity={0.2} floatIntensity={0.5}>
-      <group position={[8, 3, -4]} rotation={[0.1, -0.2, 0.05]}>
-        <RoundedBox args={[2.5, 1.8, 0.08]} radius={0.08}>
-          <meshStandardMaterial
-            color="#0d1018"
-            emissive="#1e2840"
-            emissiveIntensity={0.3}
-          />
-        </RoundedBox>
-        <mesh position={[0, 0.4, 0.05]}>
-          <planeGeometry args={[1.8, 0.15]} />
-          <meshBasicMaterial color="#4a5580" transparent opacity={0.5} />
-        </mesh>
-        <mesh position={[-0.2, 0, 0.05]}>
-          <planeGeometry args={[1.2, 0.1]} />
-          <meshBasicMaterial color="#3a4060" transparent opacity={0.4} />
-        </mesh>
-      </group>
-    </Float>
-  );
-}
-
-// Subtle particle field - restrained, not dominant
-function ParticleField() {
+// Atmospheric particles
+function AtmosphericParticles({ isDark }: { isDark: boolean }) {
   const particlesRef = useRef<THREE.Points>(null);
-  const count = 80;
+  const count = 60;
   
   const positions = useMemo(() => {
     const pos = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
-      pos[i * 3] = (Math.random() - 0.5) * 30;
-      pos[i * 3 + 1] = (Math.random() - 0.5) * 20;
-      pos[i * 3 + 2] = (Math.random() - 0.5) * 20 - 8;
+      pos[i * 3] = (Math.random() - 0.5) * 25;
+      pos[i * 3 + 1] = (Math.random() - 0.5) * 15;
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 15 - 5;
     }
     return pos;
   }, []);
 
   useFrame((state) => {
     if (particlesRef.current) {
-      particlesRef.current.rotation.y = state.clock.elapsedTime * 0.008;
+      particlesRef.current.rotation.y = state.clock.elapsedTime * 0.005;
     }
   });
 
@@ -431,10 +360,10 @@ function ParticleField() {
         <bufferAttribute attach="attributes-position" args={[positions, 3]} />
       </bufferGeometry>
       <pointsMaterial
-        size={0.04}
-        color="#5060a0"
+        size={0.03}
+        color={isDark ? "#5060a0" : "#8090c0"}
         transparent
-        opacity={0.4}
+        opacity={isDark ? 0.35 : 0.25}
         sizeAttenuation
       />
     </points>
@@ -442,35 +371,62 @@ function ParticleField() {
 }
 
 // Main 3D Scene
-function Scene() {
+function Scene({ isDark }: { isDark: boolean }) {
+  const bgColor = isDark ? "#060608" : "#f8f9fb";
+  const fogColor = isDark ? "#060608" : "#f0f2f5";
+  
   return (
     <>
-      {/* Background */}
-      <color attach="background" args={["#030406"]} />
-      <fog attach="fog" args={["#030406", 15, 40]} />
+      <color attach="background" args={[bgColor]} />
+      <fog attach="fog" args={[fogColor, 12, 35]} />
       
-      {/* Lighting system */}
-      <Lighting />
-      
-      {/* Camera control */}
+      <Lighting isDark={isDark} />
       <CameraRig />
       
-      {/* Scene layers - back to front */}
-      <BackgroundLayer />
-      <ParticleField />
-      <BackgroundScreen />
-      <SecondaryPanel />
-      <FloatingAccent />
-      <PrimaryInterface />
-      <ForegroundGlass />
-      <BottomForeground />
+      {/* Atmospheric layer */}
+      <AtmosphericParticles isDark={isDark} />
+      
+      {/* Scene objects - ordered back to front */}
+      <DeepBackgroundPanel isDark={isDark} />
+      <MainBrowserStage isDark={isDark} />
+      <MobilePreviewPanel isDark={isDark} />
+      <StatusChip isDark={isDark} />
+      <ForegroundGlassLayer isDark={isDark} />
     </>
   );
 }
 
+// Staggered text reveal animation
+const textRevealVariants = {
+  hidden: { y: "110%" },
+  visible: (i: number) => ({
+    y: "0%",
+    transition: {
+      duration: 1.2,
+      delay: 0.8 + i * 0.15,
+      ease: [0.22, 1, 0.36, 1],
+    },
+  }),
+};
+
+const fadeUpVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 1,
+      delay: 1.4 + i * 0.1,
+      ease: [0.22, 1, 0.36, 1],
+    },
+  }),
+};
+
 export function Hero() {
   const containerRef = useRef<HTMLElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -480,19 +436,21 @@ export function Hero() {
   // Scroll-driven transforms - hero recedes on scroll
   const heroScale = useTransform(scrollYProgress, [0, 0.5], [1, 0.88]);
   const heroBorderRadius = useTransform(scrollYProgress, [0, 0.5], [0, 28]);
-  const heroY = useTransform(scrollYProgress, [0, 0.5], ["0%", "-3%"]);
-  const contentOpacity = useTransform(scrollYProgress, [0.3, 0.6], [1, 0.5]);
+  const heroY = useTransform(scrollYProgress, [0, 0.5], ["0%", "-2%"]);
+  const contentOpacity = useTransform(scrollYProgress, [0.25, 0.5], [1, 0.4]);
 
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoaded(true), 100);
+    const timer = setTimeout(() => setIsLoaded(true), 200);
     return () => clearTimeout(timer);
   }, []);
+
+  const bgColor = isDark ? "#060608" : "#f8f9fb";
 
   return (
     <section
       ref={containerRef}
-      className="relative bg-[#030406]"
-      style={{ height: "200vh" }}
+      className="relative"
+      style={{ height: "200vh", backgroundColor: bgColor }}
     >
       {/* Sticky container */}
       <div className="sticky top-0 h-screen w-full overflow-hidden">
@@ -508,12 +466,12 @@ export function Hero() {
           {/* 3D Canvas Scene */}
           <div className="absolute inset-0">
             <Canvas
-              camera={{ position: [0, 0.5, 12], fov: 45 }}
+              camera={{ position: [0, 0, 10], fov: 50 }}
               dpr={[1, 1.5]}
               gl={{ antialias: true, alpha: false, powerPreference: "high-performance" }}
             >
               <Suspense fallback={null}>
-                <Scene />
+                <Scene isDark={isDark} />
               </Suspense>
             </Canvas>
           </div>
@@ -522,24 +480,27 @@ export function Hero() {
           <div
             className="absolute inset-0 pointer-events-none"
             style={{
-              background: `
-                radial-gradient(ellipse 70% 60% at 50% 50%, transparent 20%, rgba(3,4,6,0.6) 80%, rgba(3,4,6,0.95) 100%)
-              `,
+              background: isDark
+                ? "radial-gradient(ellipse 70% 60% at 50% 50%, transparent 20%, rgba(6,6,8,0.5) 75%, rgba(6,6,8,0.9) 100%)"
+                : "radial-gradient(ellipse 70% 60% at 50% 50%, transparent 20%, rgba(248,249,251,0.4) 75%, rgba(248,249,251,0.85) 100%)",
             }}
           />
 
           {/* Bottom gradient for text area */}
           <div
-            className="absolute bottom-0 left-0 right-0 h-[45%] pointer-events-none"
+            className="absolute bottom-0 left-0 right-0 h-[50%] pointer-events-none"
             style={{
-              background: "linear-gradient(to top, rgba(3,4,6,0.95) 0%, rgba(3,4,6,0.7) 40%, transparent 100%)",
+              background: isDark
+                ? "linear-gradient(to top, rgba(6,6,8,0.95) 0%, rgba(6,6,8,0.6) 50%, transparent 100%)"
+                : "linear-gradient(to top, rgba(248,249,251,0.95) 0%, rgba(248,249,251,0.5) 50%, transparent 100%)",
             }}
           />
           
-          {/* Film grain overlay */}
+          {/* Film grain */}
           <div 
-            className="absolute inset-0 pointer-events-none opacity-[0.015]"
+            className="absolute inset-0 pointer-events-none"
             style={{
+              opacity: isDark ? 0.015 : 0.008,
               backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
             }}
           />
@@ -551,56 +512,70 @@ export function Hero() {
           >
             <div className="w-full max-w-[1800px] mx-auto px-6 sm:px-10 lg:px-16 xl:px-24 pointer-events-auto">
               <div className="max-w-3xl">
-                {/* Headline - restored font-display (Syne) */}
-                <div className="overflow-hidden mb-3 lg:mb-5">
+                {/* Headline - original font-display (Syne) */}
+                <div className="overflow-hidden mb-2 lg:mb-3">
                   <motion.h1
-                    initial={{ y: "110%" }}
-                    animate={isLoaded ? { y: "0%" } : {}}
-                    transition={{ duration: 1.2, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                    className="font-display text-[clamp(2.8rem,8vw,6.5rem)] font-semibold tracking-tight leading-[0.95] text-white"
+                    custom={0}
+                    initial="hidden"
+                    animate={isLoaded ? "visible" : "hidden"}
+                    variants={textRevealVariants}
+                    className="font-display text-[clamp(2.5rem,7vw,5.5rem)] font-bold tracking-[-0.03em] leading-[0.95] text-[rgb(var(--foreground))]"
                   >
                     We craft digital
                   </motion.h1>
                 </div>
+                <div className="overflow-hidden mb-2 lg:mb-3">
+                  <motion.h1
+                    custom={1}
+                    initial="hidden"
+                    animate={isLoaded ? "visible" : "hidden"}
+                    variants={textRevealVariants}
+                    className="font-display text-[clamp(2.5rem,7vw,5.5rem)] font-bold tracking-[-0.03em] leading-[0.95] text-[rgb(var(--muted-foreground))]"
+                  >
+                    experiences that
+                  </motion.h1>
+                </div>
                 <div className="overflow-hidden mb-6 lg:mb-8">
                   <motion.h1
-                    initial={{ y: "110%" }}
-                    animate={isLoaded ? { y: "0%" } : {}}
-                    transition={{ duration: 1.2, delay: 0.65, ease: [0.22, 1, 0.36, 1] }}
-                    className="font-display text-[clamp(2.8rem,8vw,6.5rem)] font-semibold tracking-tight leading-[0.95] text-white"
+                    custom={2}
+                    initial="hidden"
+                    animate={isLoaded ? "visible" : "hidden"}
+                    variants={textRevealVariants}
+                    className="font-display text-[clamp(2.5rem,7vw,5.5rem)] font-bold tracking-[-0.03em] leading-[0.95] text-[rgb(var(--foreground))]"
                   >
-                    <span className="text-white/40">experiences that</span>{" "}
                     <span className="italic font-medium">perform</span>
                   </motion.h1>
                 </div>
 
                 {/* Supporting text */}
                 <motion.p
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={isLoaded ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 1, delay: 0.9, ease: [0.22, 1, 0.36, 1] }}
-                  className="text-base lg:text-lg text-white/50 max-w-lg mb-8 lg:mb-10 leading-relaxed"
+                  custom={0}
+                  initial="hidden"
+                  animate={isLoaded ? "visible" : "hidden"}
+                  variants={fadeUpVariants}
+                  className="text-base lg:text-lg text-[rgb(var(--muted-foreground))] max-w-lg mb-8 lg:mb-10 leading-relaxed"
                 >
                   Strategic design & development studio creating premium digital products for ambitious brands.
                 </motion.p>
 
                 {/* CTAs */}
                 <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={isLoaded ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 1, delay: 1.05, ease: [0.22, 1, 0.36, 1] }}
+                  custom={1}
+                  initial="hidden"
+                  animate={isLoaded ? "visible" : "hidden"}
+                  variants={fadeUpVariants}
                   className="flex flex-wrap items-center gap-4"
                 >
                   <Link
                     href="/contact"
-                    className="group inline-flex items-center gap-2.5 px-7 py-3.5 bg-white text-[#0a0b10] rounded-full text-sm font-medium tracking-wide hover:bg-white/90 transition-colors duration-300"
+                    className="group inline-flex items-center gap-2.5 px-7 py-3.5 bg-[rgb(var(--foreground))] text-[rgb(var(--background))] rounded-full text-sm font-medium tracking-wide hover:opacity-90 transition-opacity duration-300"
                   >
                     <span>Start a Project</span>
                     <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
                   </Link>
                   <Link
                     href="/work"
-                    className="inline-flex items-center gap-2.5 px-7 py-3.5 text-white/70 hover:text-white text-sm font-medium tracking-wide transition-colors duration-300"
+                    className="inline-flex items-center gap-2.5 px-7 py-3.5 text-[rgb(var(--muted-foreground))] hover:text-[rgb(var(--foreground))] text-sm font-medium tracking-wide transition-colors duration-300"
                   >
                     <span>View Our Work</span>
                   </Link>
@@ -608,24 +583,21 @@ export function Hero() {
 
                 {/* Trust row */}
                 <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={isLoaded ? { opacity: 1 } : {}}
-                  transition={{ duration: 1, delay: 1.3 }}
-                  className="flex items-center gap-6 mt-12 lg:mt-16"
+                  custom={2}
+                  initial="hidden"
+                  animate={isLoaded ? "visible" : "hidden"}
+                  variants={fadeUpVariants}
+                  className="flex items-center gap-6 mt-10 lg:mt-14"
                 >
-                  <div className="flex items-center gap-2.5">
-                    <div className="flex -space-x-2">
-                      {[...Array(4)].map((_, i) => (
-                        <div
-                          key={i}
-                          className="w-7 h-7 rounded-full bg-white/10 border-2 border-[#0a0b10]"
-                        />
-                      ))}
-                    </div>
-                    <span className="text-xs text-white/40 tracking-wide">50+ Clients</span>
+                  <div className="flex items-center gap-2 text-sm text-[rgb(var(--muted-foreground))]">
+                    <CheckCircle2 className="w-4 h-4 text-[rgb(var(--foreground))]/60" />
+                    <span>15+ Projects Delivered</span>
                   </div>
-                  <div className="h-4 w-px bg-white/10" />
-                  <span className="text-xs text-white/40 tracking-wide">EST. 2020</span>
+                  <div className="w-px h-4 bg-[rgb(var(--border))]" />
+                  <div className="flex items-center gap-2 text-sm text-[rgb(var(--muted-foreground))]">
+                    <CheckCircle2 className="w-4 h-4 text-[rgb(var(--foreground))]/60" />
+                    <span>100% Client Satisfaction</span>
+                  </div>
                 </motion.div>
               </div>
             </div>
