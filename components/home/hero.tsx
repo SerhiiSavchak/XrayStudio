@@ -2,45 +2,26 @@
 
 import { useRef, useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { motion, useScroll, useTransform, useSpring, useMotionValue } from "framer-motion";
-import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useTheme } from "@/lib/theme/context";
 
 // ===========================================
 // CINEMATIC RESPONSIVE SHOWCASE HERO
-// Real device mockups with real website content
-// Desktop + Tablet + Mobile in layered composition
+// Desktop Monitor + Tablet + Mobile in depth lineup
+// Same premium website across all devices
 // ===========================================
-
-// Real device mockup images from reliable CDN
-const DEVICE_FRAMES = {
-  // MacBook Pro mockup - dark frame
-  macbook: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200&q=90",
-  // iPad mockup
-  ipad: "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=800&q=90",
-  // iPhone mockup
-  iphone: "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=600&q=90",
-};
-
-// Premium website screenshots showing same design system across devices
-const WEBSITE_SCREENS = {
-  desktop: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1400&q=95",
-  tablet: "https://images.unsplash.com/photo-1559028012-481c04fa702d?w=900&q=95",
-  mobile: "https://images.unsplash.com/photo-1512486130939-2c4f79935e4f?w=600&q=95",
-};
 
 export function Hero() {
   const containerRef = useRef<HTMLElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [imagesReady, setImagesReady] = useState(false);
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
   // Smooth spring-based mouse tracking
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
-  const springConfig = { stiffness: 40, damping: 25, mass: 1.2 };
+  const springConfig = { stiffness: 50, damping: 30, mass: 1.5 };
   const smoothX = useSpring(mouseX, springConfig);
   const smoothY = useSpring(mouseY, springConfig);
 
@@ -73,35 +54,16 @@ export function Hero() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Preload images
-  useEffect(() => {
-    const images = [
-      WEBSITE_SCREENS.desktop,
-      WEBSITE_SCREENS.tablet,
-      WEBSITE_SCREENS.mobile,
-    ];
-    let loaded = 0;
-    images.forEach(src => {
-      const img = new window.Image();
-      img.crossOrigin = "anonymous";
-      img.onload = () => {
-        loaded++;
-        if (loaded === images.length) setImagesReady(true);
-      };
-      img.src = src;
-    });
-  }, []);
-
-  // Idle drift animation for organic movement
+  // Idle drift animation
   const [idle, setIdle] = useState({ x: 0, y: 0 });
   useEffect(() => {
     let frame: number;
     let t = 0;
     const animate = () => {
-      t += 0.006;
+      t += 0.005;
       setIdle({
-        x: Math.sin(t) * 0.12,
-        y: Math.cos(t * 0.7) * 0.08,
+        x: Math.sin(t) * 0.1,
+        y: Math.cos(t * 0.8) * 0.06,
       });
       frame = requestAnimationFrame(animate);
     };
@@ -112,22 +74,28 @@ export function Hero() {
   // Theme-adaptive colors
   const colors = isDark
     ? {
-        bg: "#060608",
-        surface: "#0c0c0f",
-        chrome: "#101014",
-        border: "#1a1a20",
-        glowPrimary: "rgba(100,120,180,0.2)",
-        glowSecondary: "rgba(80,100,160,0.12)",
-        vignette: "rgba(6,6,8,0.95)",
+        bg: "#08090c",
+        surface: "#0e0f14",
+        chrome: "#131419",
+        border: "#1f2029",
+        text: "#fafafa",
+        textMuted: "#8c8c96",
+        glowPrimary: "rgba(100,140,220,0.15)",
+        glowSecondary: "rgba(80,120,200,0.08)",
+        glowAccent: "rgba(140,160,255,0.06)",
+        screenBg: "#0a0b0e",
       }
     : {
-        bg: "#fcfcfd",
+        bg: "#fafbfc",
         surface: "#ffffff",
         chrome: "#f5f6f8",
-        border: "#e4e4e8",
-        glowPrimary: "rgba(100,120,180,0.12)",
-        glowSecondary: "rgba(80,100,160,0.08)",
-        vignette: "rgba(252,252,253,0.9)",
+        border: "#e2e4e8",
+        text: "#0c0c0e",
+        textMuted: "#6c6c78",
+        glowPrimary: "rgba(80,100,160,0.08)",
+        glowSecondary: "rgba(60,80,140,0.05)",
+        glowAccent: "rgba(100,120,200,0.04)",
+        screenBg: "#fefefe",
       };
 
   return (
@@ -138,160 +106,278 @@ export function Hero() {
           className="relative h-full w-full overflow-hidden origin-center"
         >
           {/* ========================================
-              LAYER 1: ATMOSPHERIC BACKGROUND
+              LAYER 1: RICH ATMOSPHERIC BACKGROUND
               ======================================== */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: isLoaded ? 1 : 0 }}
-            transition={{ duration: 2.5, ease: "easeOut" }}
+            transition={{ duration: 2, ease: "easeOut" }}
             className="absolute inset-0"
             style={{ backgroundColor: colors.bg }}
           >
-            {/* Primary ambient glow - responds to cursor */}
+            {/* Primary ambient glow - top right */}
             <motion.div
-              className="absolute w-[140%] h-[140%] -left-[20%] -top-[20%]"
+              className="absolute w-[120%] h-[120%] -right-[10%] -top-[20%]"
               style={{
-                x: useTransform(smoothX, v => v * 30),
-                y: useTransform(smoothY, v => v * 20),
-                background: `radial-gradient(ellipse 80% 70% at 60% 35%, ${colors.glowPrimary} 0%, transparent 55%)`,
+                x: useTransform(smoothX, v => v * 25),
+                y: useTransform(smoothY, v => v * 15),
+                background: `radial-gradient(ellipse 70% 60% at 70% 30%, ${colors.glowPrimary} 0%, transparent 60%)`,
               }}
             />
-            {/* Secondary ambient glow */}
+            {/* Secondary glow - left side */}
             <motion.div
-              className="absolute w-[100%] h-[100%]"
+              className="absolute w-[80%] h-[100%] -left-[10%] top-[10%]"
               style={{
                 x: useTransform(smoothX, v => v * -15),
                 y: useTransform(smoothY, v => v * -10),
-                background: `radial-gradient(ellipse 60% 50% at 25% 75%, ${colors.glowSecondary} 0%, transparent 50%)`,
+                background: `radial-gradient(ellipse 50% 70% at 20% 60%, ${colors.glowSecondary} 0%, transparent 55%)`,
               }}
             />
-            {/* Subtle grid pattern for depth */}
+            {/* Bottom accent glow */}
+            <motion.div
+              className="absolute w-[100%] h-[60%] bottom-0"
+              style={{
+                background: `radial-gradient(ellipse 80% 50% at 50% 100%, ${colors.glowAccent} 0%, transparent 70%)`,
+              }}
+            />
+            
+            {/* Subtle grid pattern */}
             <div 
-              className="absolute inset-0 opacity-[0.015]"
+              className="absolute inset-0 opacity-[0.025]"
               style={{
                 backgroundImage: `
-                  linear-gradient(${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'} 1px, transparent 1px),
-                  linear-gradient(90deg, ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'} 1px, transparent 1px)
+                  linear-gradient(${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'} 1px, transparent 1px),
+                  linear-gradient(90deg, ${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'} 1px, transparent 1px)
                 `,
-                backgroundSize: '80px 80px',
+                backgroundSize: '60px 60px',
               }}
             />
+
+            {/* Layout grid hints - web design detail */}
+            <div className="absolute inset-x-0 top-0 h-full flex justify-center">
+              {[...Array(5)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: isLoaded ? 0.02 : 0 }}
+                  transition={{ duration: 1.5, delay: 1.5 + i * 0.1 }}
+                  className="w-px h-full"
+                  style={{
+                    marginLeft: i === 0 ? 0 : '18vw',
+                    background: `linear-gradient(to bottom, transparent, ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'} 30%, ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'} 70%, transparent)`,
+                  }}
+                />
+              ))}
+            </div>
+
+            {/* Floating UI element hints */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: isLoaded ? 0.4 : 0, y: 0 }}
+              transition={{ duration: 1.2, delay: 2 }}
+              className="absolute left-[8%] top-[18%] flex items-center gap-2"
+              style={{
+                x: useTransform(smoothX, v => v * 8),
+                y: useTransform(smoothY, v => v * 5),
+              }}
+            >
+              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: isDark ? 'rgba(100,200,150,0.6)' : 'rgba(34,197,94,0.6)' }} />
+              <span className="text-[10px] font-mono tracking-wider" style={{ color: colors.textMuted }}>responsive.css</span>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: isLoaded ? 0.35 : 0, y: 0 }}
+              transition={{ duration: 1.2, delay: 2.2 }}
+              className="absolute right-[6%] bottom-[28%] px-3 py-1.5 rounded-full border"
+              style={{
+                x: useTransform(smoothX, v => v * -12),
+                y: useTransform(smoothY, v => v * -8),
+                borderColor: colors.border,
+                backgroundColor: isDark ? 'rgba(14,15,20,0.7)' : 'rgba(255,255,255,0.7)',
+              }}
+            >
+              <span className="text-[9px] font-mono tracking-wide" style={{ color: colors.textMuted }}>breakpoint: xl</span>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: isLoaded ? 0.25 : 0 }}
+              transition={{ duration: 1.5, delay: 2.4 }}
+              className="absolute left-[5%] bottom-[35%] flex flex-col gap-1"
+              style={{
+                x: useTransform(smoothX, v => v * 6),
+                y: useTransform(smoothY, v => v * 4),
+              }}
+            >
+              {[48, 36, 28].map((w, i) => (
+                <div key={i} className="h-[3px] rounded-full" style={{ width: `${w}px`, backgroundColor: colors.border }} />
+              ))}
+            </motion.div>
           </motion.div>
 
           {/* ========================================
-              LAYER 2: DEVICE SCENE CONTAINER
-              Perspective container for 3D depth
+              LAYER 2: DEVICE SCENE - DEPTH LINEUP
+              Desktop monitor (back) → Tablet → Mobile (front)
               ======================================== */}
           <div 
             className="absolute inset-0 flex items-center justify-center"
-            style={{ perspective: "2200px", perspectiveOrigin: "50% 45%" }}
+            style={{ perspective: "2500px", perspectiveOrigin: "45% 50%" }}
           >
             {/* ----------------------------------------
-                DEVICE 1: DESKTOP / LAPTOP (Background - Main Anchor)
+                DEVICE 1: DESKTOP MONITOR (Back - Largest)
+                Clean modern monitor design, no laptop
                 ---------------------------------------- */}
             <motion.div
-              initial={{ opacity: 0, y: 100, rotateX: 20, scale: 0.9 }}
-              animate={isLoaded ? { opacity: 1, y: 0, rotateX: 0, scale: 1 } : {}}
-              transition={{ duration: 1.8, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              initial={{ opacity: 0, y: 80, scale: 0.9, rotateY: -15 }}
+              animate={isLoaded ? { opacity: 1, y: 0, scale: 1, rotateY: 0 } : {}}
+              transition={{ duration: 1.6, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
               className="absolute"
               style={{
-                width: "clamp(600px, 55vw, 1000px)",
-                height: "clamp(380px, 35vw, 650px)",
-                right: "5%",
-                top: "8%",
+                width: "clamp(550px, 48vw, 850px)",
+                height: "clamp(340px, 30vw, 520px)",
+                right: "8%",
+                top: "12%",
                 transformStyle: "preserve-3d",
               }}
             >
               <motion.div
                 className="w-full h-full"
                 style={{
-                  x: useTransform(smoothX, v => (v + idle.x) * -20),
-                  y: useTransform(smoothY, v => (v + idle.y) * -12),
-                  rotateY: useTransform(smoothX, v => -10 + (v + idle.x) * 6),
-                  rotateX: useTransform(smoothY, v => 3 + (v + idle.y) * 3),
+                  x: useTransform(smoothX, v => (v + idle.x) * -15),
+                  y: useTransform(smoothY, v => (v + idle.y) * -10),
+                  rotateY: useTransform(smoothX, v => -12 + (v + idle.x) * 5),
+                  rotateX: useTransform(smoothY, v => 2 + (v + idle.y) * 2),
                   transformStyle: "preserve-3d",
-                  translateZ: "-100px",
+                  translateZ: "-80px",
                 }}
               >
-                {/* Laptop Frame */}
+                {/* Monitor Frame - Clean and Modern */}
                 <div
-                  className="w-full h-full rounded-xl overflow-hidden relative"
+                  className="w-full h-full flex flex-col"
                   style={{
-                    backgroundColor: colors.surface,
-                    border: `1px solid ${colors.border}`,
-                    boxShadow: `
-                      0 60px 120px -20px rgba(0,0,0,${isDark ? 0.5 : 0.15}),
-                      0 30px 60px -10px rgba(0,0,0,${isDark ? 0.4 : 0.1}),
-                      0 0 0 1px ${isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'},
-                      inset 0 1px 0 ${isDark ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.9)'}
-                    `,
+                    backgroundColor: isDark ? "#0c0d10" : "#f8f9fa",
                   }}
                 >
-                  {/* Browser Chrome */}
+                  {/* Screen Bezel */}
                   <div
-                    className="h-9 flex items-center px-4 gap-3"
-                    style={{ 
-                      backgroundColor: colors.chrome, 
-                      borderBottom: `1px solid ${colors.border}` 
+                    className="flex-1 m-2 rounded-lg overflow-hidden relative"
+                    style={{
+                      backgroundColor: colors.surface,
+                      border: `1px solid ${colors.border}`,
+                      boxShadow: `
+                        0 50px 100px -20px rgba(0,0,0,${isDark ? 0.5 : 0.12}),
+                        0 25px 50px -10px rgba(0,0,0,${isDark ? 0.35 : 0.08}),
+                        inset 0 1px 0 ${isDark ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.9)'}
+                      `,
                     }}
                   >
-                    <div className="flex gap-1.5">
-                      <div className="w-3 h-3 rounded-full bg-[#ff5f57]" />
-                      <div className="w-3 h-3 rounded-full bg-[#febc2e]" />
-                      <div className="w-3 h-3 rounded-full bg-[#28c840]" />
-                    </div>
+                    {/* Browser Chrome */}
                     <div
-                      className="flex-1 h-6 rounded-md mx-12 flex items-center justify-center"
-                      style={{ backgroundColor: isDark ? "#18181c" : "#e8eaed" }}
+                      className="h-8 flex items-center px-3 gap-2"
+                      style={{ 
+                        backgroundColor: colors.chrome, 
+                        borderBottom: `1px solid ${colors.border}` 
+                      }}
                     >
-                      <span className="text-[10px] text-[rgb(var(--muted-foreground))] font-mono tracking-wide">
-                        luxurystudio.design
-                      </span>
+                      <div className="flex gap-1.5">
+                        <div className="w-2.5 h-2.5 rounded-full bg-[#ff5f57]" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-[#febc2e]" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-[#28c840]" />
+                      </div>
+                      <div
+                        className="flex-1 h-5 rounded mx-8 flex items-center justify-center"
+                        style={{ backgroundColor: isDark ? "#1a1b20" : "#e8eaed" }}
+                      >
+                        <span className="text-[9px] font-mono tracking-wider" style={{ color: colors.textMuted }}>
+                          aurora.studio
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Premium Website Content - Desktop Version */}
+                    <div className="relative h-[calc(100%-2rem)] overflow-hidden" style={{ backgroundColor: colors.screenBg }}>
+                      {/* Hero section of fictional site */}
+                      <div className="h-full p-8 flex flex-col">
+                        {/* Nav bar */}
+                        <div className="flex items-center justify-between mb-12">
+                          <div className="w-20 h-5 rounded" style={{ backgroundColor: isDark ? '#1a1b20' : '#e4e6ea' }} />
+                          <div className="flex gap-6">
+                            {[40, 32, 36, 44].map((w, i) => (
+                              <div key={i} className="h-3 rounded" style={{ width: w, backgroundColor: isDark ? '#1a1b20' : '#e4e6ea' }} />
+                            ))}
+                          </div>
+                          <div className="w-20 h-7 rounded-full" style={{ backgroundColor: isDark ? '#fafafa' : '#0c0c0e' }} />
+                        </div>
+
+                        {/* Main content area */}
+                        <div className="flex-1 flex gap-12">
+                          {/* Left - Typography */}
+                          <div className="flex-1 flex flex-col justify-center">
+                            <div className="space-y-3 mb-6">
+                              <div className="h-10 w-[85%] rounded" style={{ backgroundColor: isDark ? '#1f2026' : '#e0e2e6' }} />
+                              <div className="h-10 w-[70%] rounded" style={{ backgroundColor: isDark ? '#1f2026' : '#e0e2e6' }} />
+                            </div>
+                            <div className="space-y-2 mb-8">
+                              <div className="h-3 w-[90%] rounded" style={{ backgroundColor: isDark ? '#16171c' : '#eceef0' }} />
+                              <div className="h-3 w-[75%] rounded" style={{ backgroundColor: isDark ? '#16171c' : '#eceef0' }} />
+                            </div>
+                            <div className="flex gap-3">
+                              <div className="w-28 h-9 rounded-full" style={{ backgroundColor: isDark ? '#fafafa' : '#0c0c0e' }} />
+                              <div className="w-24 h-9 rounded-full border" style={{ borderColor: colors.border }} />
+                            </div>
+                          </div>
+
+                          {/* Right - Visual */}
+                          <div className="w-[45%] rounded-xl relative overflow-hidden" style={{ backgroundColor: isDark ? '#12131a' : '#f0f2f4' }}>
+                            <div className="absolute inset-0 flex items-center justify-center">
+                              <div 
+                                className="w-[70%] h-[60%] rounded-lg"
+                                style={{ 
+                                  background: `linear-gradient(135deg, ${isDark ? 'rgba(100,140,220,0.2)' : 'rgba(80,100,160,0.15)'} 0%, ${isDark ? 'rgba(140,100,200,0.15)' : 'rgba(120,80,180,0.1)'} 100%)`,
+                                }}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Screen reflection */}
+                      <motion.div
+                        className="absolute inset-0 pointer-events-none"
+                        animate={{ backgroundPosition: ["200% 0", "-200% 0"] }}
+                        transition={{ duration: 10, ease: "linear", repeat: Infinity, repeatDelay: 5 }}
+                        style={{
+                          background: "linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.02) 48%, rgba(255,255,255,0.04) 50%, rgba(255,255,255,0.02) 52%, transparent 60%)",
+                          backgroundSize: "200% 100%",
+                        }}
+                      />
                     </div>
                   </div>
-                  {/* Website Screen Content */}
-                  <div className="relative h-[calc(100%-2.25rem)] overflow-hidden bg-[#0a0a0c]">
-                    <motion.div
-                      initial={{ opacity: 0, scale: 1.05 }}
-                      animate={imagesReady ? { opacity: 1, scale: 1 } : {}}
-                      transition={{ duration: 1.5, delay: 0.8 }}
-                      className="w-full h-full"
-                    >
-                      <Image
-                        src={WEBSITE_SCREENS.desktop}
-                        alt="Premium website - desktop view"
-                        fill
-                        className="object-cover object-top"
-                        priority
-                      />
-                    </motion.div>
-                    {/* Reflection sweep animation */}
-                    <motion.div
-                      className="absolute inset-0 pointer-events-none"
-                      animate={{ 
-                        backgroundPosition: ["200% 0", "-200% 0"],
-                      }}
-                      transition={{ 
-                        duration: 8, 
-                        ease: "linear", 
-                        repeat: Infinity,
-                        repeatDelay: 4,
-                      }}
-                      style={{
-                        background: "linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.04) 48%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 52%, transparent 60%)",
-                        backgroundSize: "200% 100%",
-                      }}
+
+                  {/* Monitor Stand */}
+                  <div className="flex flex-col items-center">
+                    <div 
+                      className="w-16 h-6" 
+                      style={{ 
+                        backgroundColor: isDark ? '#0c0d10' : '#e8eaec',
+                        borderRadius: '2px 2px 0 0',
+                      }} 
+                    />
+                    <div 
+                      className="w-32 h-2 rounded-full" 
+                      style={{ backgroundColor: isDark ? '#0c0d10' : '#e8eaec' }} 
                     />
                   </div>
-                  {/* Device glow */}
-                  <div 
-                    className="absolute -inset-px rounded-xl pointer-events-none"
-                    style={{
-                      background: `linear-gradient(135deg, ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.5)'} 0%, transparent 50%)`,
-                      opacity: 0.5,
-                    }}
-                  />
                 </div>
+
+                {/* Device glow */}
+                <div 
+                  className="absolute -inset-4 rounded-2xl pointer-events-none -z-10"
+                  style={{
+                    background: `radial-gradient(ellipse at 50% 30%, ${colors.glowPrimary} 0%, transparent 60%)`,
+                  }}
+                />
               </motion.div>
             </motion.div>
 
@@ -299,315 +385,281 @@ export function Hero() {
                 DEVICE 2: TABLET (Mid-depth)
                 ---------------------------------------- */}
             <motion.div
-              initial={{ opacity: 0, y: 80, rotateX: 15, scale: 0.85 }}
-              animate={isLoaded ? { opacity: 1, y: 0, rotateX: 0, scale: 1 } : {}}
-              transition={{ duration: 1.6, delay: 0.8, ease: [0.22, 1, 0.36, 1] }}
+              initial={{ opacity: 0, y: 60, scale: 0.85, rotateY: 10 }}
+              animate={isLoaded ? { opacity: 1, y: 0, scale: 1, rotateY: 0 } : {}}
+              transition={{ duration: 1.5, delay: 0.8, ease: [0.22, 1, 0.36, 1] }}
               className="absolute"
               style={{
-                width: "clamp(200px, 18vw, 280px)",
-                height: "clamp(280px, 26vw, 380px)",
-                left: "12%",
-                bottom: "12%",
+                width: "clamp(180px, 15vw, 240px)",
+                height: "clamp(250px, 22vw, 330px)",
+                left: "18%",
+                bottom: "18%",
                 transformStyle: "preserve-3d",
               }}
             >
               <motion.div
                 className="w-full h-full"
                 style={{
-                  x: useTransform(smoothX, v => (v + idle.x) * -40),
-                  y: useTransform(smoothY, v => (v + idle.y) * -25),
-                  rotateY: useTransform(smoothX, v => 12 + (v + idle.x) * 10),
-                  rotateX: useTransform(smoothY, v => -4 + (v + idle.y) * 5),
+                  x: useTransform(smoothX, v => (v + idle.x) * -35),
+                  y: useTransform(smoothY, v => (v + idle.y) * -22),
+                  rotateY: useTransform(smoothX, v => 15 + (v + idle.x) * 8),
+                  rotateX: useTransform(smoothY, v => -3 + (v + idle.y) * 4),
                   transformStyle: "preserve-3d",
-                  translateZ: "80px",
+                  translateZ: "60px",
                 }}
               >
                 {/* Tablet Frame */}
                 <div
-                  className="w-full h-full rounded-[1.8rem] overflow-hidden p-3 relative"
+                  className="w-full h-full rounded-[1.5rem] overflow-hidden p-2.5 relative"
                   style={{
-                    backgroundColor: isDark ? "#0f0f12" : "#f0f0f2",
+                    backgroundColor: isDark ? "#101114" : "#f2f3f5",
                     border: `1px solid ${colors.border}`,
                     boxShadow: `
-                      0 40px 80px -15px rgba(0,0,0,${isDark ? 0.45 : 0.12}),
-                      0 20px 40px -10px rgba(0,0,0,${isDark ? 0.35 : 0.08}),
-                      inset 0 1px 0 ${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.95)'}
+                      0 35px 70px -15px rgba(0,0,0,${isDark ? 0.4 : 0.1}),
+                      0 20px 40px -10px rgba(0,0,0,${isDark ? 0.3 : 0.06}),
+                      inset 0 1px 0 ${isDark ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.95)'}
                     `,
                   }}
                 >
                   {/* Screen */}
-                  <div className="w-full h-full rounded-[1.3rem] overflow-hidden relative bg-[#0a0a0c]">
-                    <motion.div
-                      initial={{ opacity: 0, scale: 1.05 }}
-                      animate={imagesReady ? { opacity: 1, scale: 1 } : {}}
-                      transition={{ duration: 1.4, delay: 1.1 }}
-                      className="w-full h-full"
-                    >
-                      <Image
-                        src={WEBSITE_SCREENS.tablet}
-                        alt="Premium website - tablet view"
-                        fill
-                        className="object-cover object-top"
+                  <div className="w-full h-full rounded-[1.1rem] overflow-hidden relative" style={{ backgroundColor: colors.screenBg }}>
+                    {/* Same website - Tablet version */}
+                    <div className="h-full p-5 flex flex-col">
+                      {/* Nav */}
+                      <div className="flex items-center justify-between mb-6">
+                        <div className="w-14 h-4 rounded" style={{ backgroundColor: isDark ? '#1a1b20' : '#e4e6ea' }} />
+                        <div className="w-6 h-4 flex flex-col gap-1">
+                          <div className="h-0.5 rounded-full" style={{ backgroundColor: isDark ? '#3a3b42' : '#c4c6ca' }} />
+                          <div className="h-0.5 rounded-full" style={{ backgroundColor: isDark ? '#3a3b42' : '#c4c6ca' }} />
+                        </div>
+                      </div>
+
+                      {/* Content */}
+                      <div className="flex-1 flex flex-col justify-center">
+                        <div className="space-y-2 mb-4">
+                          <div className="h-6 w-[90%] rounded" style={{ backgroundColor: isDark ? '#1f2026' : '#e0e2e6' }} />
+                          <div className="h-6 w-[70%] rounded" style={{ backgroundColor: isDark ? '#1f2026' : '#e0e2e6' }} />
+                        </div>
+                        <div className="space-y-1.5 mb-5">
+                          <div className="h-2 w-[95%] rounded" style={{ backgroundColor: isDark ? '#16171c' : '#eceef0' }} />
+                          <div className="h-2 w-[80%] rounded" style={{ backgroundColor: isDark ? '#16171c' : '#eceef0' }} />
+                        </div>
+                        <div className="w-20 h-7 rounded-full" style={{ backgroundColor: isDark ? '#fafafa' : '#0c0c0e' }} />
+                      </div>
+
+                      {/* Visual block */}
+                      <div 
+                        className="h-24 rounded-lg mt-4"
+                        style={{ backgroundColor: isDark ? '#12131a' : '#f0f2f4' }}
                       />
-                    </motion.div>
+                    </div>
                   </div>
+
                   {/* Frame highlight */}
                   <div 
-                    className="absolute inset-0 rounded-[1.8rem] pointer-events-none"
+                    className="absolute inset-0 rounded-[1.5rem] pointer-events-none"
                     style={{
-                      background: `linear-gradient(135deg, ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.6)'} 0%, transparent 40%)`,
+                      background: `linear-gradient(135deg, ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.5)'} 0%, transparent 40%)`,
                     }}
                   />
                 </div>
+
+                {/* Device glow */}
+                <div 
+                  className="absolute -inset-3 rounded-3xl pointer-events-none -z-10"
+                  style={{
+                    background: `radial-gradient(ellipse at 50% 50%, ${colors.glowSecondary} 0%, transparent 70%)`,
+                  }}
+                />
               </motion.div>
             </motion.div>
 
             {/* ----------------------------------------
-                DEVICE 3: MOBILE (Foreground - Closest)
+                DEVICE 3: MOBILE (Front - Closest)
                 ---------------------------------------- */}
             <motion.div
-              initial={{ opacity: 0, y: 60, rotateX: 12, scale: 0.8 }}
-              animate={isLoaded ? { opacity: 1, y: 0, rotateX: 0, scale: 1 } : {}}
+              initial={{ opacity: 0, y: 50, scale: 0.8, rotateY: 15 }}
+              animate={isLoaded ? { opacity: 1, y: 0, scale: 1, rotateY: 0 } : {}}
               transition={{ duration: 1.4, delay: 1.1, ease: [0.22, 1, 0.36, 1] }}
               className="absolute"
               style={{
-                width: "clamp(130px, 11vw, 170px)",
-                height: "clamp(270px, 24vw, 360px)",
-                left: "32%",
-                bottom: "8%",
+                width: "clamp(110px, 9vw, 145px)",
+                height: "clamp(230px, 20vw, 305px)",
+                left: "35%",
+                bottom: "10%",
                 transformStyle: "preserve-3d",
               }}
             >
               <motion.div
                 className="w-full h-full"
                 style={{
-                  x: useTransform(smoothX, v => (v + idle.x) * -65),
-                  y: useTransform(smoothY, v => (v + idle.y) * -40),
-                  rotateY: useTransform(smoothX, v => 18 + (v + idle.x) * 14),
-                  rotateX: useTransform(smoothY, v => -2 + (v + idle.y) * 6),
+                  x: useTransform(smoothX, v => (v + idle.x) * -55),
+                  y: useTransform(smoothY, v => (v + idle.y) * -35),
+                  rotateY: useTransform(smoothX, v => 20 + (v + idle.x) * 12),
+                  rotateX: useTransform(smoothY, v => -2 + (v + idle.y) * 5),
                   transformStyle: "preserve-3d",
-                  translateZ: "200px",
+                  translateZ: "180px",
                 }}
               >
                 {/* Phone Frame */}
                 <div
-                  className="w-full h-full rounded-[2.5rem] overflow-hidden p-2 relative"
+                  className="w-full h-full rounded-[2rem] overflow-hidden p-1.5 relative"
                   style={{
-                    backgroundColor: isDark ? "#0a0a0d" : "#e8e8ec",
+                    backgroundColor: isDark ? "#0a0b0e" : "#e8eaec",
                     border: `1px solid ${colors.border}`,
                     boxShadow: `
-                      0 50px 100px -20px rgba(0,0,0,${isDark ? 0.5 : 0.15}),
-                      0 25px 50px -10px rgba(0,0,0,${isDark ? 0.4 : 0.1}),
-                      inset 0 1px 0 ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.98)'}
+                      0 40px 80px -15px rgba(0,0,0,${isDark ? 0.45 : 0.12}),
+                      0 20px 40px -10px rgba(0,0,0,${isDark ? 0.35 : 0.08}),
+                      inset 0 1px 0 ${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.98)'}
                     `,
                   }}
                 >
                   {/* Screen */}
-                  <div className="w-full h-full rounded-[2rem] overflow-hidden relative bg-[#0a0a0c]">
-                    <motion.div
-                      initial={{ opacity: 0, scale: 1.05 }}
-                      animate={imagesReady ? { opacity: 1, scale: 1 } : {}}
-                      transition={{ duration: 1.3, delay: 1.4 }}
-                      className="w-full h-full"
-                    >
-                      <Image
-                        src={WEBSITE_SCREENS.mobile}
-                        alt="Premium website - mobile view"
-                        fill
-                        className="object-cover object-top"
-                      />
-                    </motion.div>
+                  <div className="w-full h-full rounded-[1.7rem] overflow-hidden relative" style={{ backgroundColor: colors.screenBg }}>
                     {/* Dynamic Island */}
                     <div
-                      className="absolute top-3 left-1/2 -translate-x-1/2 w-[4.5rem] h-[1.4rem] rounded-full z-10"
+                      className="absolute top-2.5 left-1/2 -translate-x-1/2 w-16 h-5 rounded-full z-10"
                       style={{ backgroundColor: "#000" }}
                     />
+
+                    {/* Same website - Mobile version */}
+                    <div className="h-full pt-10 px-3 pb-4 flex flex-col">
+                      {/* Content */}
+                      <div className="flex-1 flex flex-col justify-center">
+                        <div className="space-y-1.5 mb-3">
+                          <div className="h-5 w-[95%] rounded" style={{ backgroundColor: isDark ? '#1f2026' : '#e0e2e6' }} />
+                          <div className="h-5 w-[75%] rounded" style={{ backgroundColor: isDark ? '#1f2026' : '#e0e2e6' }} />
+                        </div>
+                        <div className="space-y-1 mb-4">
+                          <div className="h-1.5 w-[90%] rounded" style={{ backgroundColor: isDark ? '#16171c' : '#eceef0' }} />
+                          <div className="h-1.5 w-[70%] rounded" style={{ backgroundColor: isDark ? '#16171c' : '#eceef0' }} />
+                        </div>
+                        <div className="w-full h-6 rounded-full" style={{ backgroundColor: isDark ? '#fafafa' : '#0c0c0e' }} />
+                      </div>
+
+                      {/* Visual block */}
+                      <div 
+                        className="h-20 rounded-lg"
+                        style={{ backgroundColor: isDark ? '#12131a' : '#f0f2f4' }}
+                      />
+
+                      {/* Home indicator */}
+                      <div className="mt-3 flex justify-center">
+                        <div className="w-24 h-1 rounded-full" style={{ backgroundColor: isDark ? '#2a2b32' : '#c4c6ca' }} />
+                      </div>
+                    </div>
                   </div>
+
                   {/* Frame highlight */}
                   <div 
-                    className="absolute inset-0 rounded-[2.5rem] pointer-events-none"
+                    className="absolute inset-0 rounded-[2rem] pointer-events-none"
                     style={{
-                      background: `linear-gradient(135deg, ${isDark ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.7)'} 0%, transparent 35%)`,
+                      background: `linear-gradient(135deg, ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.6)'} 0%, transparent 35%)`,
                     }}
                   />
                 </div>
-              </motion.div>
-            </motion.div>
 
-            {/* ----------------------------------------
-                FOREGROUND GLASS ACCENT
-                ---------------------------------------- */}
-            <motion.div
-              initial={{ opacity: 0, x: 100 }}
-              animate={isLoaded ? { opacity: 1, x: 0 } : {}}
-              transition={{ duration: 1.6, delay: 1.4, ease: [0.22, 1, 0.36, 1] }}
-              className="absolute"
-              style={{
-                width: "clamp(150px, 12vw, 200px)",
-                height: "clamp(280px, 25vw, 380px)",
-                right: "-3%",
-                top: "25%",
-                transformStyle: "preserve-3d",
-              }}
-            >
-              <motion.div
-                className="w-full h-full"
-                style={{
-                  x: useTransform(smoothX, v => (v + idle.x) * -85),
-                  y: useTransform(smoothY, v => (v + idle.y) * -50),
-                  rotateY: useTransform(smoothX, v => -22 + (v + idle.x) * 18),
-                  rotateX: useTransform(smoothY, v => 4 + (v + idle.y) * 8),
-                  transformStyle: "preserve-3d",
-                  translateZ: "320px",
-                }}
-              >
-                <div
-                  className="w-full h-full rounded-2xl overflow-hidden"
+                {/* Device glow */}
+                <div 
+                  className="absolute -inset-4 rounded-[2.5rem] pointer-events-none -z-10"
                   style={{
-                    background: isDark
-                      ? "linear-gradient(145deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%)"
-                      : "linear-gradient(145deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.4) 100%)",
-                    backdropFilter: "blur(40px)",
-                    WebkitBackdropFilter: "blur(40px)",
-                    border: `1px solid ${isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)"}`,
-                    boxShadow: `0 30px 80px ${isDark ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.08)'}`,
+                    background: `radial-gradient(ellipse at 50% 50%, ${colors.glowSecondary} 0%, transparent 70%)`,
                   }}
-                >
-                  {/* Animated light sweep */}
-                  <motion.div
-                    className="absolute inset-0"
-                    animate={{ 
-                      backgroundPosition: ["0% 0%", "200% 200%"],
-                    }}
-                    transition={{ 
-                      duration: 12, 
-                      ease: "linear", 
-                      repeat: Infinity,
-                    }}
-                    style={{
-                      background: "linear-gradient(135deg, transparent 0%, transparent 40%, rgba(255,255,255,0.08) 50%, transparent 60%, transparent 100%)",
-                      backgroundSize: "200% 200%",
-                    }}
-                  />
-                </div>
+                />
               </motion.div>
             </motion.div>
           </div>
 
           {/* ========================================
-              LAYER 3: ATMOSPHERIC OVERLAYS
+              LAYER 3: TYPOGRAPHY & CTA
               ======================================== */}
-          {/* Cinematic vignette */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              background: isDark
-                ? "radial-gradient(ellipse 85% 75% at 50% 50%, transparent 0%, rgba(6,6,8,0.2) 40%, rgba(6,6,8,0.85) 100%)"
-                : "radial-gradient(ellipse 85% 75% at 50% 50%, transparent 0%, rgba(252,252,253,0.15) 40%, rgba(252,252,253,0.8) 100%)",
-            }}
-          />
-
-          {/* Bottom gradient for text legibility */}
-          <div
-            className="absolute bottom-0 left-0 right-0 h-[55%] pointer-events-none"
-            style={{
-              background: isDark
-                ? "linear-gradient(to top, rgba(6,6,8,1) 0%, rgba(6,6,8,0.95) 25%, rgba(6,6,8,0.5) 55%, transparent 100%)"
-                : "linear-gradient(to top, rgba(252,252,253,1) 0%, rgba(252,252,253,0.95) 25%, rgba(252,252,253,0.5) 55%, transparent 100%)",
-            }}
-          />
-
-          {/* Film grain texture */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            style={{
-              opacity: isDark ? 0.018 : 0.008,
-              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-            }}
-          />
-
-          {/* ========================================
-              LAYER 4: TEXT OVERLAY CONTENT
-              Using font-display (Syne) for headlines
-              ======================================== */}
-          <div className="absolute inset-0 flex items-end pb-16 md:pb-20 lg:pb-24">
-            <div className="container-wide">
+          <div className="absolute inset-0 flex items-end pb-20 lg:pb-24">
+            <div className="container-wide w-full">
               <div className="max-w-2xl">
-                {/* Headline - Line 1 */}
-                <div className="overflow-hidden mb-3">
-                  <motion.h1
-                    initial={{ y: "110%" }}
-                    animate={isLoaded ? { y: "0%" } : {}}
-                    transition={{ duration: 1.3, delay: 1.6, ease: [0.22, 1, 0.36, 1] }}
-                    className="font-display font-semibold text-4xl sm:text-5xl md:text-6xl lg:text-7xl tracking-tight leading-[1.05]"
-                  >
-                    Premium Websites
-                  </motion.h1>
-                </div>
-                {/* Headline - Line 2 */}
-                <div className="overflow-hidden mb-8">
-                  <motion.h2
-                    initial={{ y: "110%" }}
-                    animate={isLoaded ? { y: "0%" } : {}}
-                    transition={{ duration: 1.3, delay: 1.75, ease: [0.22, 1, 0.36, 1] }}
-                    className="font-display font-semibold text-4xl sm:text-5xl md:text-6xl lg:text-7xl tracking-tight leading-[1.05] text-[rgb(var(--muted-foreground))]"
-                  >
-                    That Convert
-                  </motion.h2>
-                </div>
-
-                {/* Supporting paragraph */}
-                <motion.p
-                  initial={{ opacity: 0, y: 24 }}
-                  animate={isLoaded ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 1, delay: 2, ease: [0.22, 1, 0.36, 1] }}
-                  className="text-base md:text-lg text-[rgb(var(--muted-foreground))] leading-relaxed max-w-md mb-10"
-                >
-                  Strategy-driven design and development for experts, 
-                  personal brands, and service businesses ready to scale.
-                </motion.p>
-
-                {/* CTA Buttons */}
+                {/* Overline */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={isLoaded ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 1, delay: 2.2, ease: [0.22, 1, 0.36, 1] }}
-                  className="flex flex-wrap gap-4 mb-10"
+                  transition={{ duration: 0.8, delay: 1.4 }}
+                  className="flex items-center gap-3 mb-4"
+                >
+                  <div className="w-8 h-px" style={{ backgroundColor: colors.textMuted }} />
+                  <span 
+                    className="text-xs font-medium tracking-[0.2em] uppercase"
+                    style={{ color: colors.textMuted }}
+                  >
+                    Digital Product Studio
+                  </span>
+                </motion.div>
+
+                {/* Main headline */}
+                <div className="space-y-1 mb-6">
+                  {["Crafting Premium", "Digital Experiences"].map((line, i) => (
+                    <div key={i} className="overflow-hidden">
+                      <motion.h1
+                        initial={{ y: "100%" }}
+                        animate={isLoaded ? { y: 0 } : {}}
+                        transition={{ duration: 0.9, delay: 1.5 + i * 0.1, ease: [0.22, 1, 0.36, 1] }}
+                        className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-semibold tracking-tight"
+                        style={{ color: colors.text, lineHeight: 1.05 }}
+                      >
+                        {line}
+                      </motion.h1>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Subtext */}
+                <motion.p
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={isLoaded ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.8, delay: 1.8 }}
+                  className="text-base md:text-lg mb-8 max-w-md"
+                  style={{ color: colors.textMuted, lineHeight: 1.6 }}
+                >
+                  Strategy, design, and development for brands that demand excellence.
+                </motion.p>
+
+                {/* CTA */}
+                <motion.div
+                  initial={{ opacity: 0, y: 15 }}
+                  animate={isLoaded ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 0.8, delay: 2 }}
+                  className="flex flex-wrap items-center gap-4"
                 >
                   <Link
                     href="/contact"
-                    className="group inline-flex items-center gap-2 px-6 py-3 bg-[rgb(var(--primary))] text-[rgb(var(--primary-foreground))] rounded-full font-medium text-sm transition-all hover:gap-3"
+                    className="group inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-medium transition-all duration-300"
+                    style={{
+                      backgroundColor: isDark ? colors.text : '#0c0c0e',
+                      color: isDark ? colors.bg : '#fafafa',
+                    }}
                   >
                     Start a Project
-                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
+                    <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
                   </Link>
                   <Link
                     href="/work"
-                    className="inline-flex items-center gap-2 px-6 py-3 border border-[rgb(var(--border))] rounded-full font-medium text-sm transition-all hover:bg-[rgb(var(--surface-2))]"
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-medium border transition-all duration-300 hover:bg-[rgb(var(--surface-1))]"
+                    style={{
+                      borderColor: colors.border,
+                      color: colors.text,
+                    }}
                   >
                     View Work
                   </Link>
                 </motion.div>
-
-                {/* Trust indicators */}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={isLoaded ? { opacity: 1 } : {}}
-                  transition={{ duration: 1, delay: 2.5 }}
-                  className="flex flex-wrap items-center gap-6 text-sm text-[rgb(var(--muted-foreground))]"
-                >
-                  <span className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-[rgb(var(--success))]" />
-                    50+ Projects Delivered
-                  </span>
-                  <span className="flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 text-[rgb(var(--success))]" />
-                    100% Client Satisfaction
-                  </span>
-                </motion.div>
               </div>
             </div>
           </div>
+
+          {/* Vignette overlay */}
+          <div 
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: `radial-gradient(ellipse 80% 60% at 50% 50%, transparent 40%, ${colors.bg} 100%)`,
+            }}
+          />
         </motion.div>
       </div>
     </section>
