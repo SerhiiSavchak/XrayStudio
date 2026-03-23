@@ -2,65 +2,49 @@
 
 import { useRef, useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { motion, useScroll, useTransform, useSpring, useMotionValue } from "framer-motion";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { useTheme } from "@/lib/theme/context";
 
 // ===========================================
-// IMMERSIVE 3D DEVICE SHOWCASE HERO
-// Strong cursor-reactive depth with layered devices
-// Desktop + Tablet + Mobile in spatial composition
+// CINEMATIC RESPONSIVE SHOWCASE HERO
+// Real device mockups with real website content
+// Desktop + Tablet + Mobile in layered composition
 // ===========================================
 
-// Premium website videos for device screens
-const MEDIA = {
-  desktop: "https://videos.pexels.com/video-files/5475772/5475772-uhd_2560_1440_30fps.mp4",
-  tablet: "https://videos.pexels.com/video-files/3129957/3129957-uhd_2560_1440_24fps.mp4",
-  mobile: "https://videos.pexels.com/video-files/6804117/6804117-uhd_1440_2560_25fps.mp4",
+// Real device mockup images from reliable CDN
+const DEVICE_FRAMES = {
+  // MacBook Pro mockup - dark frame
+  macbook: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200&q=90",
+  // iPad mockup
+  ipad: "https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=800&q=90",
+  // iPhone mockup
+  iphone: "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=600&q=90",
 };
 
-// Video component with loading state
-function DeviceVideo({ src, className }: { src: string; className?: string }) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [loaded, setLoaded] = useState(false);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (video) {
-      video.playbackRate = 0.6;
-      video.addEventListener("loadeddata", () => setLoaded(true));
-    }
-  }, []);
-
-  return (
-    <video
-      ref={videoRef}
-      src={src}
-      autoPlay
-      muted
-      loop
-      playsInline
-      className={`${className} transition-opacity duration-1000 ${loaded ? "opacity-100" : "opacity-0"}`}
-    />
-  );
-}
+// Premium website screenshots showing same design system across devices
+const WEBSITE_SCREENS = {
+  desktop: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1400&q=95",
+  tablet: "https://images.unsplash.com/photo-1559028012-481c04fa702d?w=900&q=95",
+  mobile: "https://images.unsplash.com/photo-1512486130939-2c4f79935e4f?w=600&q=95",
+};
 
 export function Hero() {
   const containerRef = useRef<HTMLElement>(null);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [imagesReady, setImagesReady] = useState(false);
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
-  // Smooth spring-based mouse tracking for cinematic feel
+  // Smooth spring-based mouse tracking
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
-  
-  // Stronger springs with less damping for more visible movement
-  const springConfig = { stiffness: 50, damping: 20, mass: 1 };
+  const springConfig = { stiffness: 40, damping: 25, mass: 1.2 };
   const smoothX = useSpring(mouseX, springConfig);
   const smoothY = useSpring(mouseY, springConfig);
 
-  // Scroll behavior
+  // Scroll behavior for fullscreen-to-receding effect
   const { scrollYProgress } = useScroll({
     target: containerRef,
     offset: ["start start", "end start"],
@@ -70,7 +54,7 @@ export function Hero() {
   const borderRadius = useTransform(scrollYProgress, [0, 0.5], [0, 32]);
   const yOffset = useTransform(scrollYProgress, [0, 0.5], ["0%", "-2%"]);
 
-  // Mouse tracking with much stronger effect
+  // Mouse tracking handler
   const handleMouseMove = useCallback((e: MouseEvent) => {
     const x = (e.clientX / window.innerWidth - 0.5) * 2;
     const y = (e.clientY / window.innerHeight - 0.5) * 2;
@@ -83,22 +67,41 @@ export function Hero() {
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, [handleMouseMove]);
 
-  // Load trigger
+  // Staged load sequence
   useEffect(() => {
-    const timer = setTimeout(() => setIsLoaded(true), 200);
+    const timer = setTimeout(() => setIsLoaded(true), 300);
     return () => clearTimeout(timer);
   }, []);
 
-  // Idle drift animation
+  // Preload images
+  useEffect(() => {
+    const images = [
+      WEBSITE_SCREENS.desktop,
+      WEBSITE_SCREENS.tablet,
+      WEBSITE_SCREENS.mobile,
+    ];
+    let loaded = 0;
+    images.forEach(src => {
+      const img = new window.Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        loaded++;
+        if (loaded === images.length) setImagesReady(true);
+      };
+      img.src = src;
+    });
+  }, []);
+
+  // Idle drift animation for organic movement
   const [idle, setIdle] = useState({ x: 0, y: 0 });
   useEffect(() => {
     let frame: number;
     let t = 0;
     const animate = () => {
-      t += 0.008;
+      t += 0.006;
       setIdle({
-        x: Math.sin(t) * 0.15,
-        y: Math.cos(t * 0.7) * 0.1,
+        x: Math.sin(t) * 0.12,
+        y: Math.cos(t * 0.7) * 0.08,
       });
       frame = requestAnimationFrame(animate);
     };
@@ -106,75 +109,95 @@ export function Hero() {
     return () => cancelAnimationFrame(frame);
   }, []);
 
-  // Theme colors
-  const c = isDark
-    ? { bg: "#060608", surface: "#0a0a0c", chrome: "#0c0c0f", border: "#1a1a1f", glow: "rgba(100,120,180,0.15)" }
-    : { bg: "#fcfcfd", surface: "#ffffff", chrome: "#f5f6f8", border: "#e4e4e8", glow: "rgba(80,100,160,0.10)" };
+  // Theme-adaptive colors
+  const colors = isDark
+    ? {
+        bg: "#060608",
+        surface: "#0c0c0f",
+        chrome: "#101014",
+        border: "#1a1a20",
+        glowPrimary: "rgba(100,120,180,0.2)",
+        glowSecondary: "rgba(80,100,160,0.12)",
+        vignette: "rgba(6,6,8,0.95)",
+      }
+    : {
+        bg: "#fcfcfd",
+        surface: "#ffffff",
+        chrome: "#f5f6f8",
+        border: "#e4e4e8",
+        glowPrimary: "rgba(100,120,180,0.12)",
+        glowSecondary: "rgba(80,100,160,0.08)",
+        vignette: "rgba(252,252,253,0.9)",
+      };
 
   return (
-    <section ref={containerRef} className="relative" style={{ height: "200vh", backgroundColor: c.bg }}>
+    <section ref={containerRef} className="relative" style={{ height: "200vh", backgroundColor: colors.bg }}>
       <div className="sticky top-0 h-screen w-full overflow-hidden">
         <motion.div
           style={{ scale, y: yOffset, borderRadius }}
           className="relative h-full w-full overflow-hidden origin-center"
         >
           {/* ========================================
-              ATMOSPHERIC BACKGROUND
+              LAYER 1: ATMOSPHERIC BACKGROUND
               ======================================== */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: isLoaded ? 1 : 0 }}
-            transition={{ duration: 2 }}
+            transition={{ duration: 2.5, ease: "easeOut" }}
             className="absolute inset-0"
-            style={{ backgroundColor: c.bg }}
+            style={{ backgroundColor: colors.bg }}
           >
-            {/* Large ambient glow that moves with cursor */}
+            {/* Primary ambient glow - responds to cursor */}
             <motion.div
-              className="absolute w-[120%] h-[120%] -left-[10%] -top-[10%]"
+              className="absolute w-[140%] h-[140%] -left-[20%] -top-[20%]"
               style={{
-                x: smoothX,
-                y: smoothY,
-                background: isDark
-                  ? "radial-gradient(ellipse 70% 60% at 65% 40%, rgba(60,80,140,0.12) 0%, transparent 60%)"
-                  : "radial-gradient(ellipse 70% 60% at 65% 40%, rgba(100,120,180,0.08) 0%, transparent 60%)",
+                x: useTransform(smoothX, v => v * 30),
+                y: useTransform(smoothY, v => v * 20),
+                background: `radial-gradient(ellipse 80% 70% at 60% 35%, ${colors.glowPrimary} 0%, transparent 55%)`,
               }}
             />
+            {/* Secondary ambient glow */}
             <motion.div
               className="absolute w-[100%] h-[100%]"
               style={{
-                x: smoothX,
-                y: smoothY,
-                background: isDark
-                  ? "radial-gradient(ellipse 50% 50% at 30% 70%, rgba(80,100,160,0.08) 0%, transparent 50%)"
-                  : "radial-gradient(ellipse 50% 50% at 30% 70%, rgba(120,140,200,0.05) 0%, transparent 50%)",
+                x: useTransform(smoothX, v => v * -15),
+                y: useTransform(smoothY, v => v * -10),
+                background: `radial-gradient(ellipse 60% 50% at 25% 75%, ${colors.glowSecondary} 0%, transparent 50%)`,
+              }}
+            />
+            {/* Subtle grid pattern for depth */}
+            <div 
+              className="absolute inset-0 opacity-[0.015]"
+              style={{
+                backgroundImage: `
+                  linear-gradient(${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'} 1px, transparent 1px),
+                  linear-gradient(90deg, ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'} 1px, transparent 1px)
+                `,
+                backgroundSize: '80px 80px',
               }}
             />
           </motion.div>
 
           {/* ========================================
-              DEVICE SCENE CONTAINER
-              All devices in one perspective container
+              LAYER 2: DEVICE SCENE CONTAINER
+              Perspective container for 3D depth
               ======================================== */}
           <div 
             className="absolute inset-0 flex items-center justify-center"
-            style={{ perspective: "2500px", perspectiveOrigin: "50% 50%" }}
+            style={{ perspective: "2200px", perspectiveOrigin: "50% 45%" }}
           >
-            {/* ========================================
-                DEVICE 1: DESKTOP (DEEPEST - Main Anchor)
-                Largest device, furthest back
-                ======================================== */}
+            {/* ----------------------------------------
+                DEVICE 1: DESKTOP / LAPTOP (Background - Main Anchor)
+                ---------------------------------------- */}
             <motion.div
-              initial={{ opacity: 0, y: 80, rotateX: 15 }}
-              animate={isLoaded ? { opacity: 1, y: 0, rotateX: 0 } : {}}
-              transition={{ duration: 1.8, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+              initial={{ opacity: 0, y: 100, rotateX: 20, scale: 0.9 }}
+              animate={isLoaded ? { opacity: 1, y: 0, rotateX: 0, scale: 1 } : {}}
+              transition={{ duration: 1.8, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
               className="absolute"
               style={{
-                width: "58vw",
-                height: "68vh",
-                maxWidth: "1000px",
-                maxHeight: "620px",
-                minWidth: "550px",
-                right: "4%",
+                width: "clamp(600px, 55vw, 1000px)",
+                height: "clamp(380px, 35vw, 650px)",
+                right: "5%",
                 top: "8%",
                 transformStyle: "preserve-3d",
               }}
@@ -182,30 +205,35 @@ export function Hero() {
               <motion.div
                 className="w-full h-full"
                 style={{
-                  x: useTransform(smoothX, (v) => (v + idle.x) * -25),
-                  y: useTransform(smoothY, (v) => (v + idle.y) * -15),
-                  rotateY: useTransform(smoothX, (v) => -12 + (v + idle.x) * 8),
-                  rotateX: useTransform(smoothY, (v) => 4 + (v + idle.y) * 4),
+                  x: useTransform(smoothX, v => (v + idle.x) * -20),
+                  y: useTransform(smoothY, v => (v + idle.y) * -12),
+                  rotateY: useTransform(smoothX, v => -10 + (v + idle.x) * 6),
+                  rotateX: useTransform(smoothY, v => 3 + (v + idle.y) * 3),
                   transformStyle: "preserve-3d",
-                  transform: "translateZ(-150px)",
+                  translateZ: "-100px",
                 }}
               >
+                {/* Laptop Frame */}
                 <div
-                  className="w-full h-full rounded-2xl overflow-hidden"
+                  className="w-full h-full rounded-xl overflow-hidden relative"
                   style={{
-                    backgroundColor: c.surface,
-                    border: `1px solid ${c.border}`,
+                    backgroundColor: colors.surface,
+                    border: `1px solid ${colors.border}`,
                     boxShadow: `
-                      0 60px 140px ${c.glow},
-                      0 0 0 1px ${isDark ? "rgba(255,255,255,0.02)" : "rgba(0,0,0,0.02)"},
-                      inset 0 1px 0 ${isDark ? "rgba(255,255,255,0.03)" : "rgba(255,255,255,0.8)"}
+                      0 60px 120px -20px rgba(0,0,0,${isDark ? 0.5 : 0.15}),
+                      0 30px 60px -10px rgba(0,0,0,${isDark ? 0.4 : 0.1}),
+                      0 0 0 1px ${isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'},
+                      inset 0 1px 0 ${isDark ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.9)'}
                     `,
                   }}
                 >
-                  {/* Browser chrome */}
+                  {/* Browser Chrome */}
                   <div
-                    className="h-10 flex items-center px-4 gap-2"
-                    style={{ backgroundColor: c.chrome, borderBottom: `1px solid ${c.border}` }}
+                    className="h-9 flex items-center px-4 gap-3"
+                    style={{ 
+                      backgroundColor: colors.chrome, 
+                      borderBottom: `1px solid ${colors.border}` 
+                    }}
                   >
                     <div className="flex gap-1.5">
                       <div className="w-3 h-3 rounded-full bg-[#ff5f57]" />
@@ -213,179 +241,252 @@ export function Hero() {
                       <div className="w-3 h-3 rounded-full bg-[#28c840]" />
                     </div>
                     <div
-                      className="flex-1 h-6 rounded mx-20 flex items-center justify-center"
-                      style={{ backgroundColor: isDark ? "#15151a" : "#e8eaed" }}
+                      className="flex-1 h-6 rounded-md mx-12 flex items-center justify-center"
+                      style={{ backgroundColor: isDark ? "#18181c" : "#e8eaed" }}
                     >
                       <span className="text-[10px] text-[rgb(var(--muted-foreground))] font-mono tracking-wide">
-                        xraystudio.dev
+                        luxurystudio.design
                       </span>
                     </div>
                   </div>
-                  <div className="relative h-[calc(100%-2.5rem)] overflow-hidden">
-                    <DeviceVideo src={MEDIA.desktop} className="w-full h-full object-cover" />
-                    {/* Reflection sweep */}
-                    <div
+                  {/* Website Screen Content */}
+                  <div className="relative h-[calc(100%-2.25rem)] overflow-hidden bg-[#0a0a0c]">
+                    <motion.div
+                      initial={{ opacity: 0, scale: 1.05 }}
+                      animate={imagesReady ? { opacity: 1, scale: 1 } : {}}
+                      transition={{ duration: 1.5, delay: 0.8 }}
+                      className="w-full h-full"
+                    >
+                      <Image
+                        src={WEBSITE_SCREENS.desktop}
+                        alt="Premium website - desktop view"
+                        fill
+                        className="object-cover object-top"
+                        priority
+                      />
+                    </motion.div>
+                    {/* Reflection sweep animation */}
+                    <motion.div
                       className="absolute inset-0 pointer-events-none"
+                      animate={{ 
+                        backgroundPosition: ["200% 0", "-200% 0"],
+                      }}
+                      transition={{ 
+                        duration: 8, 
+                        ease: "linear", 
+                        repeat: Infinity,
+                        repeatDelay: 4,
+                      }}
                       style={{
-                        background: "linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.03) 48%, rgba(255,255,255,0.05) 50%, rgba(255,255,255,0.03) 52%, transparent 60%)",
-                        animation: "shimmer 12s ease-in-out infinite",
+                        background: "linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.04) 48%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 52%, transparent 60%)",
+                        backgroundSize: "200% 100%",
                       }}
                     />
                   </div>
+                  {/* Device glow */}
+                  <div 
+                    className="absolute -inset-px rounded-xl pointer-events-none"
+                    style={{
+                      background: `linear-gradient(135deg, ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.5)'} 0%, transparent 50%)`,
+                      opacity: 0.5,
+                    }}
+                  />
                 </div>
               </motion.div>
             </motion.div>
 
-            {/* ========================================
-                DEVICE 2: TABLET (MIDDLE DEPTH)
-                Medium size, between desktop and mobile
-                ======================================== */}
+            {/* ----------------------------------------
+                DEVICE 2: TABLET (Mid-depth)
+                ---------------------------------------- */}
             <motion.div
-              initial={{ opacity: 0, y: 60, rotateX: 12 }}
-              animate={isLoaded ? { opacity: 1, y: 0, rotateX: 0 } : {}}
-              transition={{ duration: 1.6, delay: 0.7, ease: [0.22, 1, 0.36, 1] }}
+              initial={{ opacity: 0, y: 80, rotateX: 15, scale: 0.85 }}
+              animate={isLoaded ? { opacity: 1, y: 0, rotateX: 0, scale: 1 } : {}}
+              transition={{ duration: 1.6, delay: 0.8, ease: [0.22, 1, 0.36, 1] }}
               className="absolute"
               style={{
-                width: "20vw",
-                height: "30vh",
-                maxWidth: "300px",
-                maxHeight: "420px",
-                minWidth: "180px",
-                right: "42%",
-                bottom: "15%",
+                width: "clamp(200px, 18vw, 280px)",
+                height: "clamp(280px, 26vw, 380px)",
+                left: "12%",
+                bottom: "12%",
                 transformStyle: "preserve-3d",
               }}
             >
               <motion.div
                 className="w-full h-full"
                 style={{
-                  x: useTransform(smoothX, (v) => (v + idle.x) * -45),
-                  y: useTransform(smoothY, (v) => (v + idle.y) * -28),
-                  rotateY: useTransform(smoothX, (v) => 8 + (v + idle.x) * 12),
-                  rotateX: useTransform(smoothY, (v) => -3 + (v + idle.y) * 6),
+                  x: useTransform(smoothX, v => (v + idle.x) * -40),
+                  y: useTransform(smoothY, v => (v + idle.y) * -25),
+                  rotateY: useTransform(smoothX, v => 12 + (v + idle.x) * 10),
+                  rotateX: useTransform(smoothY, v => -4 + (v + idle.y) * 5),
                   transformStyle: "preserve-3d",
-                  transform: "translateZ(50px)",
+                  translateZ: "80px",
                 }}
               >
+                {/* Tablet Frame */}
                 <div
-                  className="w-full h-full rounded-[1.5rem] overflow-hidden p-2.5"
+                  className="w-full h-full rounded-[1.8rem] overflow-hidden p-3 relative"
                   style={{
-                    backgroundColor: c.surface,
-                    border: `1px solid ${c.border}`,
+                    backgroundColor: isDark ? "#0f0f12" : "#f0f0f2",
+                    border: `1px solid ${colors.border}`,
                     boxShadow: `
-                      0 40px 100px ${c.glow},
-                      inset 0 1px 0 ${isDark ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.9)"}
+                      0 40px 80px -15px rgba(0,0,0,${isDark ? 0.45 : 0.12}),
+                      0 20px 40px -10px rgba(0,0,0,${isDark ? 0.35 : 0.08}),
+                      inset 0 1px 0 ${isDark ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.95)'}
                     `,
                   }}
                 >
-                  <div className="w-full h-full rounded-[1.1rem] overflow-hidden relative">
-                    <DeviceVideo src={MEDIA.tablet} className="w-full h-full object-cover" />
+                  {/* Screen */}
+                  <div className="w-full h-full rounded-[1.3rem] overflow-hidden relative bg-[#0a0a0c]">
+                    <motion.div
+                      initial={{ opacity: 0, scale: 1.05 }}
+                      animate={imagesReady ? { opacity: 1, scale: 1 } : {}}
+                      transition={{ duration: 1.4, delay: 1.1 }}
+                      className="w-full h-full"
+                    >
+                      <Image
+                        src={WEBSITE_SCREENS.tablet}
+                        alt="Premium website - tablet view"
+                        fill
+                        className="object-cover object-top"
+                      />
+                    </motion.div>
                   </div>
+                  {/* Frame highlight */}
+                  <div 
+                    className="absolute inset-0 rounded-[1.8rem] pointer-events-none"
+                    style={{
+                      background: `linear-gradient(135deg, ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.6)'} 0%, transparent 40%)`,
+                    }}
+                  />
                 </div>
               </motion.div>
             </motion.div>
 
-            {/* ========================================
-                DEVICE 3: MOBILE (CLOSEST TO VIEWER)
-                Smallest but most prominent foreground element
-                ======================================== */}
+            {/* ----------------------------------------
+                DEVICE 3: MOBILE (Foreground - Closest)
+                ---------------------------------------- */}
             <motion.div
-              initial={{ opacity: 0, y: 50, rotateX: 10 }}
-              animate={isLoaded ? { opacity: 1, y: 0, rotateX: 0 } : {}}
-              transition={{ duration: 1.4, delay: 1.0, ease: [0.22, 1, 0.36, 1] }}
+              initial={{ opacity: 0, y: 60, rotateX: 12, scale: 0.8 }}
+              animate={isLoaded ? { opacity: 1, y: 0, rotateX: 0, scale: 1 } : {}}
+              transition={{ duration: 1.4, delay: 1.1, ease: [0.22, 1, 0.36, 1] }}
               className="absolute"
               style={{
-                width: "12vw",
-                height: "48vh",
-                maxWidth: "180px",
-                maxHeight: "400px",
-                minWidth: "130px",
-                right: "22%",
-                bottom: "10%",
+                width: "clamp(130px, 11vw, 170px)",
+                height: "clamp(270px, 24vw, 360px)",
+                left: "32%",
+                bottom: "8%",
                 transformStyle: "preserve-3d",
               }}
             >
               <motion.div
                 className="w-full h-full"
                 style={{
-                  x: useTransform(smoothX, (v) => (v + idle.x) * -70),
-                  y: useTransform(smoothY, (v) => (v + idle.y) * -45),
-                  rotateY: useTransform(smoothX, (v) => 15 + (v + idle.x) * 18),
-                  rotateX: useTransform(smoothY, (v) => -2 + (v + idle.y) * 8),
+                  x: useTransform(smoothX, v => (v + idle.x) * -65),
+                  y: useTransform(smoothY, v => (v + idle.y) * -40),
+                  rotateY: useTransform(smoothX, v => 18 + (v + idle.x) * 14),
+                  rotateX: useTransform(smoothY, v => -2 + (v + idle.y) * 6),
                   transformStyle: "preserve-3d",
-                  transform: "translateZ(180px)",
+                  translateZ: "200px",
                 }}
               >
+                {/* Phone Frame */}
                 <div
-                  className="w-full h-full rounded-[2.2rem] overflow-hidden p-2"
+                  className="w-full h-full rounded-[2.5rem] overflow-hidden p-2 relative"
                   style={{
-                    backgroundColor: c.surface,
-                    border: `1px solid ${c.border}`,
+                    backgroundColor: isDark ? "#0a0a0d" : "#e8e8ec",
+                    border: `1px solid ${colors.border}`,
                     boxShadow: `
-                      0 50px 120px ${c.glow},
-                      inset 0 1px 0 ${isDark ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.95)"}
+                      0 50px 100px -20px rgba(0,0,0,${isDark ? 0.5 : 0.15}),
+                      0 25px 50px -10px rgba(0,0,0,${isDark ? 0.4 : 0.1}),
+                      inset 0 1px 0 ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.98)'}
                     `,
                   }}
                 >
-                  <div className="w-full h-full rounded-[1.8rem] overflow-hidden relative">
-                    <DeviceVideo src={MEDIA.mobile} className="w-full h-full object-cover" />
+                  {/* Screen */}
+                  <div className="w-full h-full rounded-[2rem] overflow-hidden relative bg-[#0a0a0c]">
+                    <motion.div
+                      initial={{ opacity: 0, scale: 1.05 }}
+                      animate={imagesReady ? { opacity: 1, scale: 1 } : {}}
+                      transition={{ duration: 1.3, delay: 1.4 }}
+                      className="w-full h-full"
+                    >
+                      <Image
+                        src={WEBSITE_SCREENS.mobile}
+                        alt="Premium website - mobile view"
+                        fill
+                        className="object-cover object-top"
+                      />
+                    </motion.div>
                     {/* Dynamic Island */}
                     <div
-                      className="absolute top-3 left-1/2 -translate-x-1/2 w-14 h-5 rounded-full"
-                      style={{ backgroundColor: isDark ? "#000" : "#1a1a1a" }}
+                      className="absolute top-3 left-1/2 -translate-x-1/2 w-[4.5rem] h-[1.4rem] rounded-full z-10"
+                      style={{ backgroundColor: "#000" }}
                     />
                   </div>
+                  {/* Frame highlight */}
+                  <div 
+                    className="absolute inset-0 rounded-[2.5rem] pointer-events-none"
+                    style={{
+                      background: `linear-gradient(135deg, ${isDark ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.7)'} 0%, transparent 35%)`,
+                    }}
+                  />
                 </div>
               </motion.div>
             </motion.div>
 
-            {/* ========================================
+            {/* ----------------------------------------
                 FOREGROUND GLASS ACCENT
-                Adds depth and premium feel
-                ======================================== */}
+                ---------------------------------------- */}
             <motion.div
-              initial={{ opacity: 0, x: 80 }}
+              initial={{ opacity: 0, x: 100 }}
               animate={isLoaded ? { opacity: 1, x: 0 } : {}}
-              transition={{ duration: 1.6, delay: 1.3, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 1.6, delay: 1.4, ease: [0.22, 1, 0.36, 1] }}
               className="absolute"
               style={{
-                width: "14vw",
-                height: "40vh",
-                maxWidth: "220px",
-                top: "30%",
-                right: "-2%",
+                width: "clamp(150px, 12vw, 200px)",
+                height: "clamp(280px, 25vw, 380px)",
+                right: "-3%",
+                top: "25%",
                 transformStyle: "preserve-3d",
               }}
             >
               <motion.div
                 className="w-full h-full"
                 style={{
-                  x: useTransform(smoothX, (v) => (v + idle.x) * -90),
-                  y: useTransform(smoothY, (v) => (v + idle.y) * -55),
-                  rotateY: useTransform(smoothX, (v) => -25 + (v + idle.x) * 22),
-                  rotateX: useTransform(smoothY, (v) => 5 + (v + idle.y) * 10),
+                  x: useTransform(smoothX, v => (v + idle.x) * -85),
+                  y: useTransform(smoothY, v => (v + idle.y) * -50),
+                  rotateY: useTransform(smoothX, v => -22 + (v + idle.x) * 18),
+                  rotateX: useTransform(smoothY, v => 4 + (v + idle.y) * 8),
                   transformStyle: "preserve-3d",
-                  transform: "translateZ(280px)",
+                  translateZ: "320px",
                 }}
               >
                 <div
-                  className="w-full h-full rounded-2xl"
+                  className="w-full h-full rounded-2xl overflow-hidden"
                   style={{
                     background: isDark
-                      ? "linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%)"
-                      : "linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.5) 100%)",
-                    backdropFilter: "blur(30px)",
-                    WebkitBackdropFilter: "blur(30px)",
-                    border: `1px solid ${isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"}`,
-                    boxShadow: `0 0 100px ${c.glow}`,
+                      ? "linear-gradient(145deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%)"
+                      : "linear-gradient(145deg, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.4) 100%)",
+                    backdropFilter: "blur(40px)",
+                    WebkitBackdropFilter: "blur(40px)",
+                    border: `1px solid ${isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)"}`,
+                    boxShadow: `0 30px 80px ${isDark ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.08)'}`,
                   }}
                 >
-                  <div
-                    className="absolute inset-0 rounded-2xl overflow-hidden"
+                  {/* Animated light sweep */}
+                  <motion.div
+                    className="absolute inset-0"
+                    animate={{ 
+                      backgroundPosition: ["0% 0%", "200% 200%"],
+                    }}
+                    transition={{ 
+                      duration: 12, 
+                      ease: "linear", 
+                      repeat: Infinity,
+                    }}
                     style={{
-                      background: "linear-gradient(105deg, transparent 0%, transparent 35%, rgba(255,255,255,0.1) 50%, transparent 65%, transparent 100%)",
-                      animation: "shimmer 10s ease-in-out infinite",
-                      animationDelay: "3s",
+                      background: "linear-gradient(135deg, transparent 0%, transparent 40%, rgba(255,255,255,0.08) 50%, transparent 60%, transparent 100%)",
+                      backgroundSize: "200% 200%",
                     }}
                   />
                 </div>
@@ -394,117 +495,114 @@ export function Hero() {
           </div>
 
           {/* ========================================
-              ATMOSPHERIC OVERLAYS
+              LAYER 3: ATMOSPHERIC OVERLAYS
               ======================================== */}
           {/* Cinematic vignette */}
           <div
             className="absolute inset-0 pointer-events-none"
             style={{
               background: isDark
-                ? "radial-gradient(ellipse 90% 80% at 50% 50%, transparent 0%, rgba(6,6,8,0.3) 50%, rgba(6,6,8,0.95) 100%)"
-                : "radial-gradient(ellipse 90% 80% at 50% 50%, transparent 0%, rgba(252,252,253,0.2) 50%, rgba(252,252,253,0.9) 100%)",
+                ? "radial-gradient(ellipse 85% 75% at 50% 50%, transparent 0%, rgba(6,6,8,0.2) 40%, rgba(6,6,8,0.85) 100%)"
+                : "radial-gradient(ellipse 85% 75% at 50% 50%, transparent 0%, rgba(252,252,253,0.15) 40%, rgba(252,252,253,0.8) 100%)",
             }}
           />
 
           {/* Bottom gradient for text legibility */}
           <div
-            className="absolute bottom-0 left-0 right-0 h-[60%] pointer-events-none"
+            className="absolute bottom-0 left-0 right-0 h-[55%] pointer-events-none"
             style={{
               background: isDark
-                ? "linear-gradient(to top, rgba(6,6,8,1) 0%, rgba(6,6,8,0.98) 20%, rgba(6,6,8,0.6) 50%, transparent 100%)"
-                : "linear-gradient(to top, rgba(252,252,253,1) 0%, rgba(252,252,253,0.98) 20%, rgba(252,252,253,0.6) 50%, transparent 100%)",
+                ? "linear-gradient(to top, rgba(6,6,8,1) 0%, rgba(6,6,8,0.95) 25%, rgba(6,6,8,0.5) 55%, transparent 100%)"
+                : "linear-gradient(to top, rgba(252,252,253,1) 0%, rgba(252,252,253,0.95) 25%, rgba(252,252,253,0.5) 55%, transparent 100%)",
             }}
           />
 
-          {/* Subtle film grain */}
+          {/* Film grain texture */}
           <div
             className="absolute inset-0 pointer-events-none"
             style={{
-              opacity: isDark ? 0.015 : 0.008,
-              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+              opacity: isDark ? 0.018 : 0.008,
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
             }}
           />
 
           {/* ========================================
-              TEXT OVERLAY CONTENT
-              Using original font-display (Syne)
+              LAYER 4: TEXT OVERLAY CONTENT
+              Using font-display (Syne) for headlines
               ======================================== */}
           <div className="absolute inset-0 flex items-end pb-16 md:pb-20 lg:pb-24">
             <div className="container-wide">
               <div className="max-w-2xl">
-                {/* Headline */}
-                <div className="overflow-hidden mb-4">
+                {/* Headline - Line 1 */}
+                <div className="overflow-hidden mb-3">
                   <motion.h1
-                    initial={{ y: "120%" }}
+                    initial={{ y: "110%" }}
                     animate={isLoaded ? { y: "0%" } : {}}
-                    transition={{ duration: 1.4, delay: 1.5, ease: [0.22, 1, 0.36, 1] }}
+                    transition={{ duration: 1.3, delay: 1.6, ease: [0.22, 1, 0.36, 1] }}
                     className="font-display font-semibold text-4xl sm:text-5xl md:text-6xl lg:text-7xl tracking-tight leading-[1.05]"
                   >
                     Premium Websites
                   </motion.h1>
                 </div>
+                {/* Headline - Line 2 */}
                 <div className="overflow-hidden mb-8">
                   <motion.h2
-                    initial={{ y: "120%" }}
+                    initial={{ y: "110%" }}
                     animate={isLoaded ? { y: "0%" } : {}}
-                    transition={{ duration: 1.4, delay: 1.65, ease: [0.22, 1, 0.36, 1] }}
+                    transition={{ duration: 1.3, delay: 1.75, ease: [0.22, 1, 0.36, 1] }}
                     className="font-display font-semibold text-4xl sm:text-5xl md:text-6xl lg:text-7xl tracking-tight leading-[1.05] text-[rgb(var(--muted-foreground))]"
                   >
                     That Convert
                   </motion.h2>
                 </div>
 
-                {/* Supporting text */}
+                {/* Supporting paragraph */}
                 <motion.p
-                  initial={{ opacity: 0, y: 28 }}
-                  animate={isLoaded ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 1.1, delay: 1.9, ease: [0.22, 1, 0.36, 1] }}
-                  className="text-base md:text-lg text-[rgb(var(--muted-foreground))] leading-relaxed max-w-md mb-10"
-                >
-                  Strategic design, thoughtful structure, and production-ready code for experts and
-                  service businesses.
-                </motion.p>
-
-                {/* CTAs */}
-                <motion.div
                   initial={{ opacity: 0, y: 24 }}
                   animate={isLoaded ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 1.1, delay: 2.1, ease: [0.22, 1, 0.36, 1] }}
-                  className="flex flex-wrap items-center gap-4 mb-10"
+                  transition={{ duration: 1, delay: 2, ease: [0.22, 1, 0.36, 1] }}
+                  className="text-base md:text-lg text-[rgb(var(--muted-foreground))] leading-relaxed max-w-md mb-10"
+                >
+                  Strategy-driven design and development for experts, 
+                  personal brands, and service businesses ready to scale.
+                </motion.p>
+
+                {/* CTA Buttons */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={isLoaded ? { opacity: 1, y: 0 } : {}}
+                  transition={{ duration: 1, delay: 2.2, ease: [0.22, 1, 0.36, 1] }}
+                  className="flex flex-wrap gap-4 mb-10"
                 >
                   <Link
                     href="/contact"
-                    className="group inline-flex items-center gap-2 px-7 py-3.5 bg-[rgb(var(--foreground))] text-[rgb(var(--background))] rounded-full font-medium text-sm tracking-wide transition-all duration-300 hover:gap-3"
+                    className="group inline-flex items-center gap-2 px-6 py-3 bg-[rgb(var(--primary))] text-[rgb(var(--primary-foreground))] rounded-full font-medium text-sm transition-all hover:gap-3"
                   >
                     Start a Project
                     <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" />
                   </Link>
                   <Link
                     href="/work"
-                    className="inline-flex items-center gap-2 px-7 py-3.5 border border-[rgb(var(--border))] rounded-full font-medium text-sm tracking-wide text-[rgb(var(--muted-foreground))] transition-all duration-300 hover:border-[rgb(var(--foreground))] hover:text-[rgb(var(--foreground))]"
+                    className="inline-flex items-center gap-2 px-6 py-3 border border-[rgb(var(--border))] rounded-full font-medium text-sm transition-all hover:bg-[rgb(var(--surface-2))]"
                   >
                     View Work
                   </Link>
                 </motion.div>
 
-                {/* Trust row */}
+                {/* Trust indicators */}
                 <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={isLoaded ? { opacity: 1, y: 0 } : {}}
-                  transition={{ duration: 1, delay: 2.35, ease: [0.22, 1, 0.36, 1] }}
-                  className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-[rgb(var(--muted-foreground))]"
+                  initial={{ opacity: 0 }}
+                  animate={isLoaded ? { opacity: 1 } : {}}
+                  transition={{ duration: 1, delay: 2.5 }}
+                  className="flex flex-wrap items-center gap-6 text-sm text-[rgb(var(--muted-foreground))]"
                 >
-                  <span className="flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                    Strategy First
+                  <span className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-[rgb(var(--success))]" />
+                    50+ Projects Delivered
                   </span>
-                  <span className="flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                    Responsive Design
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                    Production Code
+                  <span className="flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-[rgb(var(--success))]" />
+                    100% Client Satisfaction
                   </span>
                 </motion.div>
               </div>
